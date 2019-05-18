@@ -1,6 +1,11 @@
 
 import math
 import numpy as np
-import scipy
-from matplotlib import pyplot as plt
-from scipy import special
+
+a = '123'
+if a=='234':
+    print('ok')
+else:
+    raise ValueError('Represents a hidden bug, do not catch this')
+
+print('132')

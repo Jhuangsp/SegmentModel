@@ -175,95 +175,112 @@ class Seq2Seq(object):
     class Decoder(object):
         '''
         Decoder Layer
-        
+            1. Initial state with Encoder state.
+            2. Two Dense Layer.
+                - One before Decoder Input. (output_size -> embedding_size)
+                - Another one after the Decoder Output. (embedding_size -> output_size)
+            3. Multi-Layer LSTM
+            4-1. Training decoder.
+                - Feed the Ground Truth as input to each steps.
+                - The input are start with start_tokens, end with second last step of Ground Truth
+                    - e.g. Ground Truth=[4,5,6], then Input=[start_tokens,4,5]
+            4-2. Inference decoder.
+                - Reuse 3-1's model parameter
+                - Feed the previous step's output as now step's input.
+                - Set 
+
         Parameter：
         - encoder_state: encoder端輸出的狀態向量 (tensor)
         - decoder_input: decoder端输入 (tensor)
-        - target_seq_len: target數據序列的長度 (tensor)
-        - max_target_seq_len: target數據序列的最大長度 (tensor)
-
-        - target_letter_to_int: target數據的映射表 (dict)
 
         - rnn_size: RNN hiden state 的維度
         - num_layers: RNN的層數
         - batch_size: batch size
         '''
 
-        def __init__(self, encoder_state, decoder_input,
-                       target_seq_len, max_target_seq_len,
-                       target_letter_to_int, 
+        def __init__(self, encoder_state, decoder_input, decoder_steps,
                        rnn_size, num_layers, batch_size):
             super(Seq2Seq.Decoder, self).__init__()
 
             self.encoder_state = encoder_state
             self.decoder_input = decoder_input
 
-            self.target_letter_to_int = target_letter_to_int
+            self.decoder_steps = decoder_steps
             self.num_layers = num_layers
             self.rnn_size = rnn_size
             self.batch_size = batch_size
-            self.target_seq_len = target_seq_len
-            self.max_target_seq_len = max_target_seq_len
+
+            # init Two Dense Layer
+            self.prev_dense = dense_layer(in_size=output_size, out_size=embedding_size) # Before Decoder Input
+            self.post_dense = dense_layer(in_size=embedding_size, out_size=output_size) # After Decoder Output.
 
             # 輸出
             self.training_decoder_output, self.predicting_decoder_output = self.forward()
-            
+
+        def dense_layer(self, in_size, out_size):
+            # shape (in_size, out_size)
+            weight = tf.Variable(tf.random_normal([in_size, out_size]))
+            # shape (out_size, )
+            biases = tf.Variable(tf.constant(0.1, shape=[out_size, ]))
+            return {'weight':weight, 'biases':biases, }
+        
         def forward(self):
 
-            def prepare_helper_input(output_length, embedding_size, embed_data):
-                # Decoder Embedding
-                ## Biuld up embedding map
-                embedding_map = tf.Variable(tf.random_uniform([output_length, embedding_size])) 
-                ## Do target embedding
-                un_embedd_data = tf.nn.embedding_lookup(embedding_map, embed_data)
-                
-                return embedding_map, un_embedd_data
 
             def get_lstm_cell(rnn_size):
                 lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
                 return lstm_cell
 
-            # 1. Decoder Embedding
-            ( self.embedding_map, 
-              self.decoder_embed_input ) = prepare_helper_input(
-                                                    self.output_length,
-                                                    self.rnn_size,
-                                                    self.decoder_input)
+            def apply_dense(X, p):
+                if p == 'prev':
+                    X = tf.reshape(X, [-1, self.input_size]) # [batch_size, steps, input_size] -> [batch_size*steps, input_size]
+                    X = tf.matmul(X, self.prev_dense['weight']) + self.prev_dense['biases']
+                elif p == 'post':
+                    X = tf.reshape(X, [-1, self.input_size]) # [batch_size, steps, input_size] -> [batch_size*steps, input_size]
+                    X = tf.matmul(X, self.post_dense['weight']) + self.post_dense['biases']
+                else:
+                    raise ValueError('Wrong argument while using apply_dense()')
+                return X
             
             # 2. Biuld up Decoder RNN unit
             self.cells = tf.contrib.rnn.MultiRNNCell([get_lstm_cell(self.rnn_size) for _ in range(self.num_layers)])
              
             # 3-1. Training decoder
             with tf.variable_scope("decode"):
-                self.training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.decoder_embed_input,
-                                                                    sequence_length=self.target_seq_len,
-                                                                    time_major=False)
-                # 建立 Decoder
-                self.training_decoder = tf.contrib.seq2seq.BasicDecoder(self.cells,
-                                                                   self.training_helper,
-                                                                   self.encoder_state) 
+
+                X = apply_dense(self.decoder_input, 'prev')
                 
-                # 對 decoder執行 dynamic decoding。透過 maximum_iterations參數定義最大序列長度。
-                training_decoder_output, _, _ = tf.contrib.seq2seq.dynamic_decode(self.training_decoder,
-                                                                                  impute_finished=True,
-                                                                                  maximum_iterations=self.max_target_seq_len)
+                # tf.nn.dynamic_rnn(lstm_cells, input, sequence_length=steps, dtype=tf.float32)
+                training_decoder_output, _ = tf.nn.dynamic_rnn(self.cells, X, 
+                                                    sequence_length=self.decoder_steps, initial_state=self.encoder_state, dtype=tf.float32)
                 
+                training_decoder_output = apply_dense(training_decoder_output, 'post')
+
             # 3-2. Predicting decoder
-            # 與 Training decoder共享參數
             with tf.variable_scope("decode", reuse=True):
                 # 創建一個常數 start_tokens tensor並複製為 batch_size的大小
                 self.start_tokens = tf.tile(tf.constant([self.target_letter_to_int['<GO>']], dtype=tf.int32), [self.batch_size], name='start_tokens')
                 
-                self.predicting_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding=self.embedding_map,
-                                                                        start_tokens=self.start_tokens,
-                                                                        end_token=self.end_output)
-                self.predicting_decoder = tf.contrib.seq2seq.BasicDecoder(self.cells,
-                                                                self.predicting_helper,
-                                                                self.encoder_state)
-                predicting_decoder_output, _, _ = tf.contrib.seq2seq.dynamic_decode(self.predicting_decoder,
-                                                                                    impute_finished=True,
-                                                                                    maximum_iterations=self.max_target_seq_len)
-            
-            return training_decoder_output, predicting_decoder_output
+                X = apply_dense(self.start_tokens, 'prev')
+                
+                # tf.nn.dynamic_rnn(lstm_cells, input, sequence_length=steps, dtype=tf.float32)
+                step1_decoder_output, step1_state = tf.nn.dynamic_rnn(self.cells, X, 
+                                                    sequence_length=1, initial_state=self.encoder_state, dtype=tf.float32)
 
+                X = apply_dense(step1_decoder_output, 'post')
+                X = apply_dense(X, 'prev')
+
+                step2_decoder_output, step2_state = tf.nn.dynamic_rnn(self.cells, X, 
+                                                    sequence_length=1, initial_state=step1_state, dtype=tf.float32)
+
+                X = apply_dense(step2_decoder_output, 'post')
+                X = apply_dense(X, 'prev')
+
+                predicting_decoder_output, _ = tf.nn.dynamic_rnn(self.cells, X, 
+                                                    sequence_length=1, initial_state=step2_state, dtype=tf.float32)
+
+                predicting_decoder_output = apply_dense(predicting_decoder_output, 'post')
+                
+
+            return training_decoder_output, predicting_decoder_output
 
