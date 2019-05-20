@@ -10,6 +10,8 @@ FY108 Skeleton-based action analysis - Action Segment Model
 
 ### Input Data
 Skeleton detected by [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) COCO model.
+#### Normalize
+Normaliaze the joint coordinate which take *Neck(idx:1)* as **origin**, **distance** from *Neck(idx:1)* to *Nose(idx:0)* as length unit.
 <p align="center">
   <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/InputData.png" alt="InputData">
 </p>
