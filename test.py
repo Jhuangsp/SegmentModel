@@ -14,7 +14,7 @@ How to use discrete_gaussian_kernel()
 scipy.special.iv(n, t): Modified Bessel function of the first kind of real order.
 '''
 ns = np.arange(-5, 5+1)
-y0 = discrete_gaussian_kernel(0.5, ns)
+y0 = discrete_gaussian_kernel(0.25, ns)
 y1 = discrete_gaussian_kernel(1, ns)
 y2 = discrete_gaussian_kernel(2, ns)
 plt.plot(ns, y0, ns, y1, ns, y2)
