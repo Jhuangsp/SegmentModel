@@ -25,17 +25,17 @@ We labeled all the **Changing Point Frame** to 1, others to 0. The **Changing Po
 #### Gaussian Weighting
 We do not directly use the target as ground truth, we weight the target with [Discrete Gaussian Kernel](https://en.wikipedia.org/wiki/Scale_space_implementation#The_discrete_Gaussian_kernel) for each times of Fine Tune. (In our task we Fine Tune 3 times, so we have 3 different size Discrete Gaussian Kernel)
 
-Original Target
+##### Original Target
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/Target.png" alt="Target" width="700">
 </p>
 
-3 different size Discrete Gaussian Kernel
+##### 3 different size Discrete Gaussian Kernel
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/GaussianWeight.png" alt="GaussianWeight" width="400">
 </p>
 
-    3 Weighted Target for 3 times Fine Tune
+##### 3 Weighted Target for 3 times Fine Tune
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/GaussianWeightedTarget.png" alt="GaussianWeightedTarget" width="700">
 </p>
