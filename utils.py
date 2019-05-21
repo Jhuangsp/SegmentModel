@@ -5,6 +5,16 @@ import scipy
 from matplotlib import pyplot as plt
 from scipy import special
 
+plt.rcParams.update({'font.size': 20})
+
+# plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+# plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+# plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+# plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+# plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+# plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+# plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
 def normalize(step_input):
     '''
     Normaliaze the joint coordinate which take Neck(idx:1) as origin, 
@@ -47,12 +57,17 @@ def gaussian_weighted(data_list, n):
      - target_label: all steps of output label (shape: decoder_steps, output length)
     Return:
      - different size gaussian weighted target_label
-    '''
+    '''    
     ns = np.arange(11)-5
     w = discrete_gaussian_kernel(n, ns)
     weighted_data_list = np.convolve(data_list, w, 'same')
 
-    # ls = np.arange(len(weighted_data_list))
-    # plt.scatter(ls, weighted_data_list)
-    # plt.show()
+    ls = np.arange(len(weighted_data_list))
+    plt.scatter(ls, weighted_data_list)
+    plt.plot(ls, weighted_data_list)
+    plt.xlabel('Frame')
+    plt.ylabel('Probability of Changing Point Frame')
+    plt.xlim([30, 70])
+    plt.ylim([-0.1, 1.1])
+    plt.show()
     return weighted_data_list
