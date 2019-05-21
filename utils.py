@@ -65,6 +65,7 @@ def gaussian_weighted(data_list, n):
     ls = np.arange(len(weighted_data_list))
     plt.scatter(ls, weighted_data_list)
     plt.plot(ls, weighted_data_list)
+
     plt.xlabel('Frame')
     plt.ylabel('Probability of Changing Point Frame')
     plt.xlim([30, 70])
