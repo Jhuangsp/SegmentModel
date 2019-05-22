@@ -54,22 +54,24 @@ class DataProcess(object):
         '''
 
         print('==> Loading data...\n')
-        source_data = np.zeros((len(self.source_path), self.max_len ,self.input_size), dtype=np.float64)
+        source_data = np.zeros((len(self.source_path), self.max_len, self.input_size), dtype=np.float32)
         for idxt, (activity, frames) in enumerate(self.source_path.items()):
-            frame_data = np.zeros((self.max_len ,self.input_size), dtype=np.float64)
+            frame_data = np.zeros((self.max_len ,self.input_size), dtype=np.float32)
             for i,frame in enumerate(frames):
                 with open(frame) as json_file:
                     data = json.load(json_file)
                     #np.array(data['people'][0]['pose_keypoints']).reshape(-1,3)
                     frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints'])) # need normalize
+            if i < self.max_len - 1:
+                frame_data[i+1:] = frame_data[i]
             source_data[idxt] = frame_data
         print('Source data shape (samples, max_data_steps, input_size):', source_data.shape) 
 
 
-        target_data = np.zeros((len(self.target_path), self.decoder_steps, self.max_len), dtype=np.float64)
+        target_data = np.zeros((len(self.target_path), self.decoder_steps, self.max_len), dtype=np.float32)
         for idxt, label_file in enumerate(self.target_path):
             loaded = np.load(label_file)
-            lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float64)
+            lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
             ns = [2, 1, 0.25] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
@@ -99,23 +101,29 @@ class DataProcess(object):
 
         return train_set, valid_set
 
-    def Batch_Generator(self, source_split, target_split):
+    def Batch_Generator(self, source_split, target_split, input_length):
         '''
-        定義generator，用來生成batch, 此步驟同時做padding
+        Define generator to generate batch
+        Random pick sample and start point
         
-        回傳:
-        - padding完的batch (list, shape=[batch_size, Max_lenght_of_sentence], dtype=int)
-        - 原本的長度紀錄 (list, shape=[batch_size], dtype=int)
+        Return:
+        - batch
         '''
+        samples = len(source_split)
+        start_range = self.max_len - input_length
 
-        num_batchs = len(source_split)//self.batch_size
+        for batch_i in range(25):
+            # random choose sample
+            sample_i = np.random.randint(samples, size=self.batch_size)
+            # start point
+            start_i = np.random.randint(start_range, size=self.batch_size)
 
-        for batch_i in range(0, num_batchs):
-            # batch 的開始點
-            start_i = batch_i * self.batch_size
-            # 切 batch
-            sources_batch = source_split[start_i:start_i + self.batch_size]
-            targets_batch = target_split[start_i:start_i + self.batch_size]
+            # cut batch [r[i][st:st+2] for (i,st) in enumerate(start)]
+            random_targets = [target_split[s] for s in sample_i]
+            random_sources = [source_split[s] for s in sample_i]
+            targets_batch = [random_targets[i][:,st:st+input_length] for (i,st) in enumerate(start_i)]
+            sources_batch = [random_sources[i][st:st+input_length] for (i,st) in enumerate(start_i)]
             
-            yield targets_batch, sources_batch
+            print(np.array(targets_batch).shape, np.array(sources_batch).shape)
+            yield np.array(targets_batch), np.array(sources_batch)
 
