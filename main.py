@@ -12,8 +12,8 @@ parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN 
 parser.add_argument('-d', '--data_path', type=str, default='data',
                     help='Path to Dataset (default:\"../data\")')
 
-parser.add_argument('-e', '--epochs', type=int, default=3,
-                    help='Number of Epochs (default:3)')
+parser.add_argument('-e', '--epochs', type=int, default=10,
+                    help='Number of Epochs (default:10)')
 parser.add_argument('-b', '--batch_size', type=int, default=2,
                     help='Batch Size (default:2)')
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
@@ -26,8 +26,8 @@ parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
                     help='Learning Rate (default:0.001)')
 parser.add_argument('-f', '--frames', type=int, default=20,
                     help='Number of frames in one sequence (default:20)')
-parser.add_argument('--display_step', type=int, default=2,
-                    help='Display loss for every N batches (default:2)')
+parser.add_argument('--display_step', type=int, default=20,
+                    help='Display loss for every N batches (default:20)')
 
 
 parser.add_argument('-jnum', '--num_joint', type=int, default=18,
@@ -102,7 +102,7 @@ if __name__ == '__main__':
             train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'], args.frames)
             # Get training batch
             for batch_i, (targets_batch, sources_batch) in enumerate(train_batch_generator):
-                print('Batch {} start...'.format(batch_i))
+                #print('Batch {} start...'.format(batch_i))
 
                 _, loss = sess.run( [train_op, cost],
                     {input_data: sources_batch,
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                           .format(epoch_i,
                                   args.epochs, 
                                   batch_i, 
-                                  len(DataLoader.train_set['source']) // args.batch_size, 
+                                  25, 
                                   loss, 
                                   validation_loss[0]))
 

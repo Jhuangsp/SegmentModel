@@ -124,6 +124,5 @@ class DataProcess(object):
             targets_batch = [random_targets[i][:,st:st+input_length] for (i,st) in enumerate(start_i)]
             sources_batch = [random_sources[i][st:st+input_length] for (i,st) in enumerate(start_i)]
             
-            print(np.array(targets_batch).shape, np.array(sources_batch).shape)
             yield np.array(targets_batch), np.array(sources_batch)
 
