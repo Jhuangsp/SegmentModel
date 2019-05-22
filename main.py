@@ -24,10 +24,16 @@ parser.add_argument('-ds', '--decoder_steps', type=int, default=3,
                     help='Steps of decoding (default:3)')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
                     help='Learning Rate (default:0.001)')
+parser.add_argument('-f', '--frames', type=int, default=20,
+                    help='Number of frames in one sequence (default:20)')
+parser.add_argument('--display_step', type=int, default=2,
+                    help='Display loss for every N batches (default:2)')
+
+
 parser.add_argument('-jnum', '--num_joint', type=int, default=18,
                     help='Number of joints (default:18)')
-parser.add_argument('-jdim', '--coord_dim', type=int, default=3,
-                    help='Dimension of joint coordinate (default:3)')
+parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
+                    help='Dimension of joint coordinate (default:2)')
 
 args = parser.parse_args()
 
@@ -68,31 +74,27 @@ if __name__ == '__main__':
         training_decoder_output   = Net.decoder.training_decoder_output
         predicting_decoder_output = Net.decoder.predicting_decoder_output
         
-        training_logits = tf.identity(training_decoder_output.rnn_output, name='logits')   # rnn_output
+        training_logits = tf.identity(training_decoder_output.rnn_output, name='train predictions')   # rnn_output
         predicting_logits = tf.identity(predicting_decoder_output.sample_id, name='predictions')   # sample_id
-        
-        masks = tf.sequence_mask(target_seq_len, max_target_seq_len, dtype=tf.float32, name='masks')
 
         with tf.name_scope("optimization"):
             
             # Loss function
-            cost = tf.contrib.seq2seq.sequence_loss(
+            loss = tf.contrib.seq2seq.sequence_loss(
                 training_logits,
-                targets,
-                masks)
+                targets)
 
             # Optimizer
             optimizer = tf.train.AdamOptimizer(lr)
 
             # Gradient Clipping
-            gradients = optimizer.compute_gradients(cost)
+            gradients = optimizer.compute_gradients(loss)
             capped_gradients = [(tf.clip_by_value(grad, -5., 5.), var) for grad, var in gradients if grad is not None]
             train_op = optimizer.apply_gradients(capped_gradients)
 
     
     ## Training
     print('==> Start Training...\n')
-    display_step = 2 # display loss for every 2 batches
     checkpoint = "./trained_model.ckpt"
 
     # Create batch generator of training data
@@ -102,9 +104,9 @@ if __name__ == '__main__':
     # Get validation batch
     (valid_targets_batch, valid_sources_batch, valid_targets_lengths, valid_sources_lengths) = next(valid_batch_generator)
 
-    # 建立 Session 
+    # Create Session 
     with tf.Session(graph=train_graph) as sess:
-        # 初始化權重
+        # Init weight
         sess.run(tf.global_variables_initializer())
         # Training Loop
         for epoch_i in range(1, args.epochs+1):
@@ -119,17 +121,17 @@ if __name__ == '__main__':
                 # targets_lengths: type=list, shape=[args.batch_size = 128]
                 # sources_lengths: type=list, shape=[args.batch_size = 128]
 
-                _, loss = sess.run( [train_op, cost],
+                _, loss = sess.run( [train_op, loss],
                     {  input_data: sources_batch,
                        targets: targets_batch,
                        lr: args.learning_rate,
                        target_seq_len: targets_lengths,
                        source_seq_len: sources_lengths  })
 
-                if batch_i % display_step == 0:
+                if batch_i % args.display_step == 0:
                     
                     # 计算validation loss
-                    validation_loss = sess.run( [cost],
+                    validation_loss = sess.run( [loss],
                       {  input_data: valid_sources_batch,
                          targets: valid_targets_batch,
                          lr: args.learning_rate,
