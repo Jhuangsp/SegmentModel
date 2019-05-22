@@ -29,8 +29,7 @@ def normalize(step_input):
     normalized = normalized - normalized[1,:]
     unit = np.linalg.norm(normalized[0])
     normalized = normalized/unit
-    step_input[:,:2] = normalized
-    return step_input.reshape(-1)
+    return normalized.reshape(-1)
 
 
 def discrete_gaussian_kernel(t, n):
@@ -62,13 +61,13 @@ def gaussian_weighted(data_list, n):
     w = discrete_gaussian_kernel(n, ns)
     weighted_data_list = np.convolve(data_list, w, 'same')
 
-    ls = np.arange(len(weighted_data_list))
-    plt.scatter(ls, weighted_data_list)
-    plt.plot(ls, weighted_data_list)
+    # ls = np.arange(len(weighted_data_list))
+    # plt.scatter(ls, weighted_data_list)
+    # plt.plot(ls, weighted_data_list)
 
-    plt.xlabel('Frame')
-    plt.ylabel('Probability of Changing Point Frame')
-    plt.xlim([30, 70])
-    plt.ylim([-0.1, 1.1])
-    plt.show()
+    # plt.xlabel('Frame')
+    # plt.ylabel('Probability of Changing Point Frame')
+    # plt.xlim([30, 70])
+    # plt.ylim([-0.1, 1.1])
+    # plt.show()
     return weighted_data_list

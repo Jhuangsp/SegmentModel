@@ -37,52 +37,42 @@ parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
 
 args = parser.parse_args()
 
-# Input size of each steps
-input_size = args.num_joint*args.coord_dim
 
 
 if __name__ == '__main__':
+    # Input size of each steps
+    input_size = args.num_joint*args.coord_dim
 
     # Loading data
     DataLoader = DataProcess.DataProcess(path=args.data_path, 
                                          batch_size=args.batch_size, 
                                          input_size=input_size, 
                                          decoder_steps=args.decoder_steps)
-    os._exit(0)
     # Define graph
     print('==> Defining Graph...\n')
     train_graph = tf.Graph()
     with train_graph.as_default():
         
         # Get placeholder
-        ( input_data,
-          targets,
-          lr,
-          source_seq_len,
-          target_seq_len,
-          max_target_seq_len ) = Seq2SeqModel.get_inputs()
+        (input_data, targets, lr) = SegmentModel.get_inputs()
         
-        # 建立 Sequence to Sequence Model 
+        # Build Sequence to Sequence Model 
         print('==> Creating Model...\n')
-        Net = Seq2SeqModel.Seq2Seq(input_data, targets, lr, 
-                                    source_seq_len, 
-                                    target_seq_len, 
-                                    max_target_seq_len,
-                                    DataLoader,
-                                    args.rnn_size, args.num_layers, args.batch_size, input_size)
-        # 取出 Model 結果
+        Net = SegmentModel.Seq2Seq( input_data, targets,
+                                    args.frames, args.decoder_steps, args.rnn_size, args.num_layers, 
+                                    args.batch_size, input_size)
+        os._exit(0)
+        # Get Model Result
         training_decoder_output   = Net.decoder.training_decoder_output
         predicting_decoder_output = Net.decoder.predicting_decoder_output
         
-        training_logits = tf.identity(training_decoder_output.rnn_output, name='train predictions')   # rnn_output
+        training_logits   = tf.identity(training_decoder_output.rnn_output,  name='train predictions')   # rnn_output
         predicting_logits = tf.identity(predicting_decoder_output.sample_id, name='predictions')   # sample_id
 
         with tf.name_scope("optimization"):
             
             # Loss function
-            loss = tf.contrib.seq2seq.sequence_loss(
-                training_logits,
-                targets)
+            loss = tf.contrib.seq2seq.sequence_loss(training_logits, targets)
 
             # Optimizer
             optimizer = tf.train.AdamOptimizer(lr)
@@ -98,9 +88,7 @@ if __name__ == '__main__':
     checkpoint = "./trained_model.ckpt"
 
     # Create batch generator of training data
-    valid_batch_generator = DataLoader.Batch_Generator(
-                                    DataLoader.valid_set['source'], 
-                                    DataLoader.valid_set['target'])
+    valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'])
     # Get validation batch
     (valid_targets_batch, valid_sources_batch, valid_targets_lengths, valid_sources_lengths) = next(valid_batch_generator)
 
@@ -111,32 +99,22 @@ if __name__ == '__main__':
         # Training Loop
         for epoch_i in range(1, args.epochs+1):
             # Create batch generator of training data
-            train_batch_generator = DataLoader.Batch_Generator(
-                                            DataLoader.train_set['source'], 
-                                            DataLoader.train_set['target'])
+            train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'])
             # Get training batch
             for batch_i, (targets_batch, sources_batch, targets_lengths, sources_lengths) in enumerate(train_batch_generator):
-                # targets_batch: type=list, shape=[args.batch_size = 128, steps = 7]
-                # sources_batch: type=list, shape=[args.batch_size = 128, steps = 7]
-                # targets_lengths: type=list, shape=[args.batch_size = 128]
-                # sources_lengths: type=list, shape=[args.batch_size = 128]
 
                 _, loss = sess.run( [train_op, loss],
-                    {  input_data: sources_batch,
-                       targets: targets_batch,
-                       lr: args.learning_rate,
-                       target_seq_len: targets_lengths,
-                       source_seq_len: sources_lengths  })
+                    {input_data: sources_batch,
+                     targets: targets_batch,
+                     lr: args.learning_rate})
 
                 if batch_i % args.display_step == 0:
                     
-                    # 计算validation loss
+                    # Calculate validation loss
                     validation_loss = sess.run( [loss],
-                      {  input_data: valid_sources_batch,
+                        {input_data: valid_sources_batch,
                          targets: valid_targets_batch,
-                         lr: args.learning_rate,
-                         target_seq_len: valid_targets_lengths,
-                         source_seq_len: valid_sources_lengths  })
+                         lr: args.learning_rate})
                     
                     print('Epoch {:>3}/{} Batch {:>4}/{} - Training Loss: {:>6.3f}  - Validation loss: {:>6.3f}'
                           .format(epoch_i,
@@ -148,7 +126,7 @@ if __name__ == '__main__':
 
         
         
-        # 保存模型
+        # Save model
         saver = tf.train.Saver()
         saver.save(sess, checkpoint)
         print('Model Trained and Saved')
