@@ -88,11 +88,14 @@ class DataProcess(object):
         '''
 
         print('==> Spliting Dataset...\n')
-        # 將 dataset分割為 train和 1個 batch的 validation
-        train_source = self.source_data[self.batch_size:,:,:]
-        train_target = self.target_data[self.batch_size:,:,:]
-        valid_source = self.source_data[:self.batch_size,:,:]
-        valid_target = self.target_data[:self.batch_size,:,:]
+        # 將 dataset分割為 train和 1個 video長的 validation
+        train_source = self.source_data[1:,:,:]
+        train_target = self.target_data[1:,:,:]
+        valid_source = self.source_data[:1,:,:]
+        valid_target = self.target_data[:1,:,:]
+
+        print('Training source: {}, Training target: {}'.format(train_source.shape, train_target.shape))
+        print('Validate source: {}, Validate target: {}'.format(valid_source.shape, valid_target.shape))
 
         train_set = {'source':train_source, 'target':train_target}
         valid_set = {'source':valid_source, 'target':valid_target}
@@ -101,7 +104,7 @@ class DataProcess(object):
 
         return train_set, valid_set
 
-    def Batch_Generator(self, source_split, target_split, input_length):
+    def Batch_Generator(self, source_split, target_split, input_seq_length):
         '''
         Define generator to generate batch
         Random pick sample and start point
@@ -110,9 +113,15 @@ class DataProcess(object):
         - batch
         '''
         samples = len(source_split)
-        start_range = self.max_len - input_length
+        start_range = self.max_len - input_seq_length
 
-        for batch_i in range(25):
+        num_batch = (samples*start_range)//(input_seq_length*self.batch_size)
+
+        print(' - Total Batches: {:2d} | Videos: {:2d} | Input Length: {:2d}'.format(num_batch, samples, input_seq_length))
+        print(' - Batche Shape: ({0:}, {1:}, {2:}) (source) | ({0:}, {3:}, {1:}) (target)\n'.format(
+                                                self.batch_size, input_seq_length, self.input_size, self.decoder_steps))
+
+        for batch_i in range(num_batch):
             # random choose sample
             sample_i = np.random.randint(samples, size=self.batch_size)
             # start point
@@ -121,8 +130,8 @@ class DataProcess(object):
             # cut batch [r[i][st:st+2] for (i,st) in enumerate(start)]
             random_targets = [target_split[s] for s in sample_i]
             random_sources = [source_split[s] for s in sample_i]
-            targets_batch = [random_targets[i][:,st:st+input_length] for (i,st) in enumerate(start_i)]
-            sources_batch = [random_sources[i][st:st+input_length] for (i,st) in enumerate(start_i)]
+            targets_batch = [random_targets[i][:,st:st+input_seq_length] for (i,st) in enumerate(start_i)]
+            sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
             
-            yield np.array(targets_batch), np.array(sources_batch)
+            yield np.array(sources_batch), np.array(targets_batch), num_batch
 

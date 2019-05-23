@@ -14,8 +14,8 @@ parser.add_argument('-d', '--data_path', type=str, default='data',
 
 parser.add_argument('-e', '--epochs', type=int, default=10,
                     help='Number of Epochs (default:10)')
-parser.add_argument('-b', '--batch_size', type=int, default=2,
-                    help='Batch Size (default:2)')
+parser.add_argument('-b', '--batch_size', type=int, default=15,
+                    help='Batch Size (default:15)')
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
                     help='RNN Size (default:50)')
 parser.add_argument('-rl', '--num_layers', type=int, default=2,
@@ -86,22 +86,24 @@ if __name__ == '__main__':
     checkpoint = "./trained_model.ckpt"
 
     # Create batch generator of training data
+    print('Validate Generator Created')
     valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.frames)
     # Get validation batch
-    (valid_targets_batch, valid_sources_batch) = next(valid_batch_generator)
+    (valid_sources_batch, valid_targets_batch, _) = next(valid_batch_generator)
 
     # Create Session 
     with tf.Session(graph=train_graph) as sess:
         # Init weight
-        print('Init variables...')
+        print('\n\nInit variables...')
         sess.run(tf.global_variables_initializer())
         # Training Loop
         for epoch_i in range(1, args.epochs+1):
             print('Epoch {} start...'.format(epoch_i))
             # Create batch generator of training data
+            print(' - Training Generator Created')
             train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'], args.frames)
             # Get training batch
-            for batch_i, (targets_batch, sources_batch) in enumerate(train_batch_generator):
+            for batch_i, (sources_batch, targets_batch, num_batch) in enumerate(train_batch_generator):
                 #print('Batch {} start...'.format(batch_i))
 
                 _, loss = sess.run( [train_op, cost],
@@ -117,14 +119,13 @@ if __name__ == '__main__':
                          targets: valid_targets_batch,
                          lr: args.learning_rate})
                     
-                    print('Epoch {:>3}/{} Batch {:>4}/{} - Training Loss: {:>6.3f}  - Validation loss: {:>6.3f}'
+                    print(' - Epoch {:>3}/{} | Batch {:>4}/{} | Training Loss: {:>6.3f} | Validation loss: {:>6.3f}'
                           .format(epoch_i,
                                   args.epochs, 
                                   batch_i, 
-                                  25, 
+                                  num_batch, 
                                   loss, 
                                   validation_loss[0]))
-
     
         os._exit(0)
         
