@@ -9,31 +9,36 @@ import SegmentModel
 
 parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN model.')
 
+# Data parameter
 parser.add_argument('-d', '--data_path', type=str, default='data',
                     help='Path to Dataset (default:\"../data\")')
+parser.add_argument('-jnum', '--num_joint', type=int, default=18,
+                    help='Number of joints (default:18)')
+parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
+                    help='Dimension of joint coordinate (default:2)')
 
+# Training parameter
 parser.add_argument('-e', '--epochs', type=int, default=10,
                     help='Number of Epochs (default:10)')
 parser.add_argument('-b', '--batch_size', type=int, default=15,
                     help='Batch Size (default:15)')
+parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
+                    help='Learning Rate (default:0.001)')
+
+# Display parameter
+parser.add_argument('--display_step', type=int, default=5,
+                    help='Display loss for every N batches (default:5)')
+
+# Model structure parameter
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
                     help='RNN Size (default:50)')
 parser.add_argument('-rl', '--num_layers', type=int, default=2,
                     help='Number of Layers (default:2)')
 parser.add_argument('-ds', '--decoder_steps', type=int, default=3,
                     help='Steps of decoding (default:3)')
-parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
-                    help='Learning Rate (default:0.001)')
 parser.add_argument('-f', '--frames', type=int, default=20,
                     help='Number of frames in one sequence (default:20)')
-parser.add_argument('--display_step', type=int, default=20,
-                    help='Display loss for every N batches (default:20)')
 
-
-parser.add_argument('-jnum', '--num_joint', type=int, default=18,
-                    help='Number of joints (default:18)')
-parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
-                    help='Dimension of joint coordinate (default:2)')
 
 args = parser.parse_args()
 
