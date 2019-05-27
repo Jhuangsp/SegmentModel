@@ -59,3 +59,10 @@ We do not directly use the target as ground truth, we weight the target with [Di
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/train_result.png" alt="train_result">
 </p>
+
+## TODO
+ - Add dropout
+ - Add batch normalize
+ - Auto hyperparameter finding
+ - Find good loss function
+
