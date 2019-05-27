@@ -3,6 +3,7 @@ import numpy as np
 import time
 import os
 import argparse
+from matplotlib import pyplot as plt
 
 import DataProcess
 import SegmentModel
@@ -18,8 +19,8 @@ parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
                     help='Dimension of joint coordinate (default:2)')
 
 # Training parameter
-parser.add_argument('-e', '--epochs', type=int, default=10,
-                    help='Number of Epochs (default:10)')
+parser.add_argument('-e', '--epochs', type=int, default=100,
+                    help='Number of Epochs (default:100)')
 parser.add_argument('-b', '--batch_size', type=int, default=15,
                     help='Batch Size (default:15)')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
@@ -32,8 +33,8 @@ parser.add_argument('--display_step', type=int, default=5,
 # Model structure parameter
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
                     help='RNN Size (default:50)')
-parser.add_argument('-rl', '--num_layers', type=int, default=2,
-                    help='Number of Layers (default:2)')
+parser.add_argument('-rl', '--num_layers', type=int, default=4,
+                    help='Number of Layers (default:4)')
 parser.add_argument('-ds', '--decoder_steps', type=int, default=3,
                     help='Steps of decoding (default:3)')
 parser.add_argument('-f', '--frames', type=int, default=20,
@@ -76,7 +77,7 @@ if __name__ == '__main__':
         with tf.name_scope("optimization"):
             
             # Loss function MSE
-            cost = tf.reduce_mean(tf.square(tf.subtract(training_logits, targets)))
+            cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
 
             # Optimizer
             optimizer = tf.train.AdamOptimizer(lr)
@@ -88,7 +89,7 @@ if __name__ == '__main__':
     
     ## Training
     print('==> Start Training...\n')
-    checkpoint = "./trained_model.ckpt"
+    checkpoint = "./model/trained_model.ckpt"
 
     # Create batch generator of training data
     print('Validate Generator Created')
@@ -131,11 +132,53 @@ if __name__ == '__main__':
                                   num_batch, 
                                   loss, 
                                   validation_loss[0]))
-    
-        os._exit(0)
-        
         
         # Save model
         saver = tf.train.Saver()
         saver.save(sess, checkpoint)
-        print('Model Trained and Saved')
+        print('Model Trained and Saved\n')
+
+
+
+    # Testing
+    print('==> Start Testing...\n')
+    # infer_data = np.array([DataLoader.train_set['source'][0]])
+    # infer_targ = np.array([DataLoader.train_set['target'][0]])
+    infer_data = DataLoader.valid_set['source']
+    infer_targ = DataLoader.valid_set['target']
+
+    pad_size = args.frames - (infer_data.shape[1] % args.frames)
+    infer_data = np.pad(infer_data, ((0,0), (0,pad_size), (0,0)), 'edge') # padding (1, 580, 36)
+    infer_data = infer_data.reshape(-1, args.frames, input_size)
+    print('infer_data shape:', infer_data.shape)
+
+    checkpoint = "./model/trained_model.ckpt"
+
+    loaded_graph = tf.Graph()
+    answer_logits = np.zeros((infer_data.shape[0], args.frames))   
+    with tf.Session(graph=loaded_graph) as sess:
+        # Load model
+        loader = tf.train.import_meta_graph(checkpoint + '.meta')
+        loader.restore(sess, checkpoint)
+
+        input_data = loaded_graph.get_tensor_by_name('inputs:0')
+        logits = loaded_graph.get_tensor_by_name('inference_result:0')
+        
+        for i in range(infer_data.shape[0]):
+            tmp = sess.run(logits, { input_data: np.tile(infer_data[i], (15,1,1)) })
+            answer_logits[i] = sess.run(logits, { input_data: np.tile(infer_data[i], (15,1,1)) })[0,0]
+
+    answer_logits = answer_logits.reshape(-1)
+    ls = np.arange(len(answer_logits))
+    plt.scatter(ls, answer_logits, color='orange')
+    plt.plot(ls, answer_logits, color='orange')
+
+    ls = np.arange(len(infer_targ.reshape(3,-1)[-1]))
+    plt.scatter(ls, infer_targ.reshape(3,-1)[-1])
+    plt.plot(ls, infer_targ.reshape(3,-1)[-1])
+
+    plt.xlabel('Frame')
+    plt.ylabel('Probability of Changing Point Frame')
+    # plt.xlim([30, 70])
+    plt.ylim([-0.1, 1.1])
+    plt.show()
