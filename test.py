@@ -1,25 +1,10 @@
 
-import math
-import numpy as np
-import scipy
-from matplotlib import pyplot as plt
-from scipy import special
+# @commandline_args.txt
 
-plt.rcParams.update({'font.size': 15})
+import argparse
+import sys
+parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
+parser.add_argument('--foo')
+parser.add_argument('bar', nargs='?')
 
-def discrete_gaussian_kernel(t, n):
-    return math.exp(-t) * special.iv(n, t)
-'''
-How to use discrete_gaussian_kernel()
-scipy.special.iv(n, t): Modified Bessel function of the first kind of real order.
-'''
-ns = np.arange(-5, 5+1)
-y0 = discrete_gaussian_kernel(0.25, ns)
-y1 = discrete_gaussian_kernel(1, ns)
-y2 = discrete_gaussian_kernel(2, ns)
-plt.plot(ns, y0, ns, y1, ns, y2)
-plt.xlabel('Frame')
-plt.ylabel('Weight')
-plt.xlim([-5, 5])
-plt.ylim([0, 1])
-plt.show()
+print(parser.parse_args())

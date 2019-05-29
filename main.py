@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import DataProcess
 import SegmentModel
 
-parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN model.')
+parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN model.', fromfile_prefix_chars='@')
 
 # Data parameter
 parser.add_argument('-d', '--data_path', type=str, default='data',
@@ -23,8 +23,8 @@ parser.add_argument('-e', '--epochs', type=int, default=100,
                     help='Number of Epochs (default:100)')
 parser.add_argument('-b', '--batch_size', type=int, default=15,
                     help='Batch Size (default:15)')
-parser.add_argument('-lr', '--learning_rate', type=float, default=0.001,
-                    help='Learning Rate (default:0.001)')
+parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001,
+                    help='Learning Rate (default:0.0001)')
 
 # Display parameter
 parser.add_argument('--display_step', type=int, default=5,
@@ -43,6 +43,9 @@ parser.add_argument('-f', '--frames', type=int, default=20,
 
 args = parser.parse_args()
 
+# save args
+with open('./model/command_args.txt', 'w') as f:
+    f.write('\n'.join(sys.argv[1:]))
 
 
 if __name__ == '__main__':
