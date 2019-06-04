@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import time
-import os
+import os,sys
 import argparse
 from matplotlib import pyplot as plt
 
@@ -105,6 +105,7 @@ if __name__ == '__main__':
         # Init weight
         print('\n\nInit variables...')
         sess.run(tf.global_variables_initializer())
+        learning_r = args.learning_rate
         # Training Loop
         for epoch_i in range(1, args.epochs+1):
             print('Epoch {} start...'.format(epoch_i))
@@ -118,7 +119,7 @@ if __name__ == '__main__':
                 _, loss = sess.run( [train_op, cost],
                     {input_data: sources_batch,
                      targets: targets_batch,
-                     lr: args.learning_rate})
+                     lr: learning_r})
 
                 if batch_i % args.display_step == 0:
                     
@@ -126,7 +127,7 @@ if __name__ == '__main__':
                     validation_loss = sess.run( [cost],
                         {input_data: valid_sources_batch,
                          targets: valid_targets_batch,
-                         lr: args.learning_rate})
+                         lr: learning_r})
                     
                     print(' - Epoch {:>3}/{} | Batch {:>4}/{} | Training Loss: {:>6.3f} | Validation loss: {:>6.3f}'
                           .format(epoch_i,

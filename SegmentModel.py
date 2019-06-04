@@ -231,6 +231,7 @@ class Seq2Seq(object):
                                                     sequence_length=train_length, initial_state=self.encoder_state, dtype=tf.float32)
                 # De-embedding
                 training_decoder_output = tf.sigmoid(apply_dense(training_decoder_output, 'post', steps=self.decoder_steps))
+                # training_decoder_output = apply_dense(training_decoder_output, 'post', steps=self.decoder_steps)
 
 
             # Predicting decoder
@@ -246,18 +247,21 @@ class Seq2Seq(object):
                 step1_output, step1_state = tf.nn.dynamic_rnn(self.cells, X, 
                                                     sequence_length=train_length, initial_state=self.encoder_state, dtype=tf.float32)
                 X = tf.sigmoid(apply_dense(step1_output, 'post', steps=PREDICT_STEP)) # De-embedding
+                # X = apply_dense(step1_output, 'post', steps=PREDICT_STEP) # De-embedding
 
                 # STEP 2
                 X = apply_dense(X, 'prev', steps=PREDICT_STEP)  # Embedding
                 step2_output, step2_state = tf.nn.dynamic_rnn(self.cells, X, 
                                                     sequence_length=train_length, initial_state=step1_state, dtype=tf.float32)
                 X = tf.sigmoid(apply_dense(step2_output, 'post', steps=PREDICT_STEP)) # De-embedding
+                # X = apply_dense(step2_output, 'post', steps=PREDICT_STEP) # De-embedding
 
                 # STEP 3
                 X = apply_dense(X, 'prev', steps=PREDICT_STEP)  # Embedding
                 predicting_decoder_output, _ = tf.nn.dynamic_rnn(self.cells, X, 
                                                     sequence_length=train_length, initial_state=step2_state, dtype=tf.float32)
                 predicting_decoder_output = tf.sigmoid(apply_dense(predicting_decoder_output, 'post', steps=PREDICT_STEP)) # De-embedding
+                # predicting_decoder_output = apply_dense(predicting_decoder_output, 'post', steps=PREDICT_STEP) # De-embedding
                 
 
             return training_decoder_output, predicting_decoder_output
