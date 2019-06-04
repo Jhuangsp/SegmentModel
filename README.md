@@ -3,7 +3,9 @@ FY108 Skeleton-based action analysis - Action Segment Model
 
 ## Standard
 In this implementation, we assume all keypoints share same moving period and no time-shift displacement.
+
 Among this assumption, we define an **Action** to be a set of skeleton keypoints move together along a set fixed directions during a period of time.
+
 And, how we label the Action's starting-ending points in a video is assigning the **Changing Point Frame** at all moving turning points, e.g. the frame that sitting on chair and stand straght in *tandSit video*.
 
 ## Structure
