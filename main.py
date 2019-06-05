@@ -27,8 +27,8 @@ parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001,
                     help='Learning Rate (default:0.0001)')
 
 # Display parameter
-parser.add_argument('--display_step', type=int, default=5,
-                    help='Display loss for every N batches (default:5)')
+parser.add_argument('--display_step', type=int, default=50,
+                    help='Display loss for every N batches (default:50)')
 
 # Model structure parameter
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
@@ -37,11 +37,17 @@ parser.add_argument('-rl', '--num_layers', type=int, default=4,
                     help='Number of Layers (default:4)')
 parser.add_argument('-ds', '--decoder_steps', type=int, default=3,
                     help='Steps of decoding (default:3)')
-parser.add_argument('-f', '--frames', type=int, default=20,
-                    help='Number of frames in one sequence (default:20)')
-
+parser.add_argument('-if', '--in_frames', type=int, default=20,
+                    help='Number of frames in one input sequence (default:20)')
+parser.add_argument('-ob', '--out_band', type=int, default=10,
+                    help='Number of output-band frames in the mid of input sequence (default:10)')
 
 args = parser.parse_args()
+
+if args.in_frames <= args.out_band:
+    parser.error('-if must larger than -ob.')
+elif (args.in_frames-args.out_band)%2 != 0:
+    parser.error('The value -if larger than -ob must divisible by 2.')
 
 # save args
 with open('./model/command_args.txt', 'w') as f:
@@ -67,7 +73,7 @@ if __name__ == '__main__':
         # Build Sequence to Sequence Model 
         print('==> Creating Model...\n')
         Net = SegmentModel.Seq2Seq( input_data=input_data, targets=targets,
-                                    seq_length=args.frames, rnn_size=args.rnn_size, num_layers=args.num_layers, batch_size=args.batch_size, 
+                                    seq_length=args.in_frames, out_length=args.out_band, rnn_size=args.rnn_size, num_layers=args.num_layers, batch_size=args.batch_size, 
                                     input_size=input_size, decoder_steps=args.decoder_steps)
 
         # Get Model Result
@@ -96,7 +102,7 @@ if __name__ == '__main__':
 
     # Create batch generator of training data
     print('Validate Generator Created')
-    valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.frames)
+    valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band)
     # Get validation batch
     (valid_sources_batch, valid_targets_batch, _) = next(valid_batch_generator)
 
@@ -111,7 +117,7 @@ if __name__ == '__main__':
             print('Epoch {} start...'.format(epoch_i))
             # Create batch generator of training data
             print(' - Training Generator Created')
-            train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'], args.frames)
+            train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'], args.in_frames, args.out_band)
             # Get training batch
             for batch_i, (sources_batch, targets_batch, num_batch) in enumerate(train_batch_generator):
                 #print('Batch {} start...'.format(batch_i))
@@ -151,15 +157,15 @@ if __name__ == '__main__':
     infer_data = DataLoader.valid_set['source']
     infer_targ = DataLoader.valid_set['target']
 
-    pad_size = args.frames - (infer_data.shape[1] % args.frames)
+    pad_size = args.in_frames - (infer_data.shape[1] % args.in_frames)
     infer_data = np.pad(infer_data, ((0,0), (0,pad_size), (0,0)), 'edge') # padding (1, 580, 36)
-    infer_data = infer_data.reshape(-1, args.frames, input_size)
+    infer_data = infer_data.reshape(-1, args.in_frames, input_size)
     print('infer_data shape:', infer_data.shape)
 
     checkpoint = "./model/trained_model.ckpt"
 
     loaded_graph = tf.Graph()
-    answer_logits = np.zeros((infer_data.shape[0], args.frames))   
+    answer_logits = np.zeros((infer_data.shape[0], args.in_frames))   
     with tf.Session(graph=loaded_graph) as sess:
         # Load model
         loader = tf.train.import_meta_graph(checkpoint + '.meta')

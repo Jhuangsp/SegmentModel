@@ -28,6 +28,7 @@ class Seq2Seq(object):
         - targets:              (tf.placeholder)  padding 完的1個 batch 的目標資料 (tensor:[batch_size, steps])
         
         - seq_length:       Steps of one input sequence (dtype=int)
+        - out_length:       Number of output-band frames in the mid of input sequence (dtype=int)
         - rnn_size:         Size of lstm hiden state
         - num_layers:       Number of multy-layer-lstm layers
         - batch_size:       Batch size
@@ -36,7 +37,7 @@ class Seq2Seq(object):
         - decoder_steps:    Number of steps should decoder do.
     '''
     def __init__(self, input_data, targets,
-                  seq_length, rnn_size, num_layers, batch_size, 
+                  seq_length, out_length, rnn_size, num_layers, batch_size, 
                   input_size, decoder_steps):
         super(Seq2Seq, self).__init__()
 
@@ -44,6 +45,7 @@ class Seq2Seq(object):
         self.targets = targets
 
         self.seq_length = seq_length
+        self.out_length = out_length
         self.rnn_size = rnn_size
         self.num_layers = num_layers
         self.batch_size = batch_size
@@ -75,7 +77,7 @@ class Seq2Seq(object):
 
         self.decoder = self.Decoder(self.encoder.encoder_state,
                                     self.decoder_input,
-                                    self.seq_length, self.rnn_size, self.num_layers, self.batch_size,
+                                    self.out_length, self.rnn_size, self.num_layers, self.batch_size,
                                     self.decoder_steps)
 
 
@@ -161,7 +163,7 @@ class Seq2Seq(object):
             - encoder_state:    encoder端輸出的狀態向量 (tensor)
             - decoder_input:    decoder端输入 (tensor) (Only used in training)
 
-            - seq_length:       Steps of one input sequence (dtype=int)
+            - out_length:       Number of output-band frames in the mid of input sequence (dtype=int)
             - rnn_size:         Size of lstm hiden state
             - num_layers:       Number of multy-layer-lstm layers
             - batch_size:       Batch size
@@ -174,21 +176,21 @@ class Seq2Seq(object):
         '''
 
         def __init__(self, encoder_state, decoder_input, 
-                       seq_length, rnn_size, num_layers, batch_size, decoder_steps):
+                       out_length, rnn_size, num_layers, batch_size, decoder_steps):
             super(Seq2Seq.Decoder, self).__init__()
 
             self.encoder_state = encoder_state
             self.decoder_input = decoder_input
 
-            self.seq_length = seq_length
+            self.out_length = out_length
             self.rnn_size = rnn_size
             self.num_layers = num_layers
             self.batch_size = batch_size
             self.decoder_steps = decoder_steps
 
             # init Two Dense Layer
-            self.prev_dense = self.dense_layer(in_size=self.seq_length, out_size=self.rnn_size) # Before Decoder Input.
-            self.post_dense = self.dense_layer(in_size=self.rnn_size, out_size=self.seq_length) # After Decoder Output.
+            self.prev_dense = self.dense_layer(in_size=self.out_length, out_size=self.rnn_size) # Before Decoder Input.
+            self.post_dense = self.dense_layer(in_size=self.rnn_size, out_size=self.out_length) # After Decoder Output.
 
             # LSTM unit
             def get_lstm_cell(rnn_size):
@@ -210,13 +212,13 @@ class Seq2Seq(object):
 
             def apply_dense(X, p, steps):
                 if p == 'prev':
-                    X = tf.reshape(X, [-1, self.seq_length]) # [batch_size, steps, input_size] -> [batch_size*steps, input_size]
+                    X = tf.reshape(X, [-1, self.out_length]) # [batch_size, steps, input_size] -> [batch_size*steps, input_size]
                     X = tf.matmul(X, self.prev_dense['weight']) + self.prev_dense['biases']
                     X = tf.reshape(X, [-1, steps, self.rnn_size])
                 elif p == 'post':
                     X = tf.reshape(X, [-1, self.rnn_size]) # [batch_size, steps, input_size] -> [batch_size*steps, input_size]
                     X = tf.matmul(X, self.post_dense['weight']) + self.post_dense['biases']
-                    X = tf.reshape(X, [-1, steps, self.seq_length])
+                    X = tf.reshape(X, [-1, steps, self.out_length])
                 else:
                     raise ValueError('Wrong argument while using apply_dense()')
                 return X
@@ -239,7 +241,7 @@ class Seq2Seq(object):
                 # step = 1
                 PREDICT_STEP = 1
                 # 創建 start_tokens for each batches [batch_size, steps, output_len]
-                self.start_tokens = tf.fill([self.batch_size, PREDICT_STEP, self.seq_length], 0.5, name='start_tokens')
+                self.start_tokens = tf.fill([self.batch_size, PREDICT_STEP, self.out_length], 0.5, name='start_tokens')
                 train_length = tf.fill([self.batch_size], PREDICT_STEP)
                 
                 # STEP 1
