@@ -150,22 +150,23 @@ if __name__ == '__main__':
 
 
 
+    # infer_data = np.pad(infer_data, ((0,pad_size), (0,0)), 'edge') # padding (1, 580, 36)
     # Testing
     print('==> Start Testing...\n')
-    # infer_data = np.array([DataLoader.train_set['source'][0]])
-    # infer_targ = np.array([DataLoader.train_set['target'][0]])
+    # infer_data = DataLoader.train_set['source']
+    # infer_targ = DataLoader.train_set['target']
     infer_data = DataLoader.valid_set['source']
     infer_targ = DataLoader.valid_set['target']
 
-    pad_size = args.in_frames - (infer_data.shape[1] % args.in_frames)
-    infer_data = np.pad(infer_data, ((0,0), (0,pad_size), (0,0)), 'edge') # padding (1, 580, 36)
-    infer_data = infer_data.reshape(-1, args.in_frames, input_size)
+    (activity, infer_data) = list(infer_data.items())[0]
+    (activity, infer_targ) = list(infer_targ.items())[0]
+    length = infer_data.shape[0] - (args.in_frames-1)
     print('infer_data shape:', infer_data.shape)
 
     checkpoint = "./model/trained_model.ckpt"
 
     loaded_graph = tf.Graph()
-    answer_logits = np.zeros((infer_data.shape[0], args.in_frames))   
+    answer_logits = np.zeros((length, args.out_band))   
     with tf.Session(graph=loaded_graph) as sess:
         # Load model
         loader = tf.train.import_meta_graph(checkpoint + '.meta')
@@ -174,14 +175,18 @@ if __name__ == '__main__':
         input_data = loaded_graph.get_tensor_by_name('inputs:0')
         logits = loaded_graph.get_tensor_by_name('inference_result:0')
         
-        for i in range(infer_data.shape[0]):
-            tmp = sess.run(logits, { input_data: np.tile(infer_data[i], (15,1,1)) })
-            answer_logits[i] = sess.run(logits, { input_data: np.tile(infer_data[i], (15,1,1)) })[0,0]
+        for i in range(length):
+            indata = infer_data[i:i+args.in_frames, :]
+            answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)) })[0,0]
 
-    answer_logits = answer_logits.reshape(-1)
-    ls = np.arange(len(answer_logits))
-    plt.scatter(ls, answer_logits, color='orange')
-    plt.plot(ls, answer_logits, color='orange')
+    #answer_logits = answer_logits.reshape(-1)
+    #ls = np.arange(len(answer_logits))
+    ls = np.arange(args.out_band)
+    for e,a_logits in enumerate(answer_logits):
+        if e % 10 == 0:
+            plt.scatter(ls, a_logits, color='orange')
+            plt.plot(ls, a_logits, color='orange')
+        ls += 1
 
     ls = np.arange(len(infer_targ.reshape(3,-1)[-1]))
     plt.scatter(ls, infer_targ.reshape(3,-1)[-1])

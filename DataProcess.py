@@ -128,10 +128,10 @@ class DataProcess(object):
 
         print('==> Spliting Dataset...\n')
         # 將 dataset分割為 train和 1個 video長的 validation
-        train_source = dict(self.source_data.items()[1:])
-        train_target = dict(self.target_data.items()[1:])
-        valid_source = dict(self.source_data.items()[:1])
-        valid_target = dict(self.target_data.items()[:1])
+        train_source = dict(list(self.source_data.items())[1:])
+        train_target = dict(list(self.target_data.items())[1:])
+        valid_source = dict(list(self.source_data.items())[:1])
+        valid_target = dict(list(self.target_data.items())[:1])
 
         print('Training source:')
         for k,i in train_source.items():

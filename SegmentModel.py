@@ -64,7 +64,7 @@ class Seq2Seq(object):
             '''
             # START_TOKEN = np.full((batch_size, 1, output_len), 0.5)
             data_without_end = tf.strided_slice(data, begin=[0, 0], end=[batch_size, -1], strides=[1, 1])
-            decoder_input = tf.concat([tf.fill([batch_size, 1, self.seq_length], 0.5), data_without_end], axis=1)
+            decoder_input = tf.concat([tf.fill([batch_size, 1, self.out_length], 0.5), data_without_end], axis=1)
             return decoder_input
 
 
