@@ -3,10 +3,24 @@ import numpy as np
 import time
 import os,sys
 import argparse
+import datetime
 from matplotlib import pyplot as plt
 
 import DataProcess
 import SegmentModel
+
+now = datetime.datetime.now()
+current_time = '{:04d}_{:02d}_{:02d}_{:02d}{:02d}{:02d}\n'.format(
+    now.year, 
+    now.month, 
+    now.day, 
+    now.hour, 
+    now.minute, 
+    now.second)
+with open('./model/info.txt', 'w') as out_file:
+    info = input('Enter infomation:')
+    out_file.write(current_time)
+    out_file.write(info)
 
 parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN model.', fromfile_prefix_chars='@')
 
@@ -63,12 +77,15 @@ if __name__ == '__main__':
                                          batch_size=args.batch_size, 
                                          input_size=input_size, 
                                          decoder_steps=args.decoder_steps)
+    train_batch_generator = DataLoader.Batch_Generator( DataLoader.train_set['source'], DataLoader.train_set['target'], args.in_frames, args.out_band)
+    (_, _, num_batch) = next(train_batch_generator)
+
     # Define graph
     train_graph = tf.Graph()
     with train_graph.as_default():
         
         # Get placeholder
-        (input_data, targets, lr) = SegmentModel.get_inputs()
+        (input_data, targets) = SegmentModel.get_inputs()
         
         # Build Sequence to Sequence Model 
         print('==> Creating Model...\n')
@@ -85,11 +102,22 @@ if __name__ == '__main__':
 
         with tf.name_scope("optimization"):
             
-            # Loss function MSE
-            cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
+            # Loss function MSE/SSE
+
+            penalty = tf.cast(targets > 0, dtype=tf.float32) * 20 + 1
+            cost = tf.reduce_sum(tf.square(penalty * tf.subtract(training_logits, targets)))
 
             # Optimizer
-            optimizer = tf.train.AdamOptimizer(lr)
+            global_step = tf.Variable(0, trainable=False)
+
+            num_total_steps = args.epochs*num_batch
+            boundaries = [np.int32((3/5) * num_total_steps), np.int32((4/5) * num_total_steps)]
+            values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4]
+
+            learning_rate = tf.train.piecewise_constant(global_step, boundaries, values)
+            optimizer = tf.train.AdamOptimizer(learning_rate)
+            # optimizer = tf.train.AdamOptimizer(lr)
+            add_global = global_step.assign_add(1)
 
             # Gradient Clipping
             gradients = optimizer.compute_gradients(cost)
@@ -100,18 +128,17 @@ if __name__ == '__main__':
     print('==> Start Training...\n')
     checkpoint = "./model/trained_model.ckpt"
 
-    # Create batch generator of training data
-    print('Validate Generator Created')
-    valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band)
-    # Get validation batch
-    (valid_sources_batch, valid_targets_batch, _) = next(valid_batch_generator)
+    # # Create batch generator of training data
+    # print('Validate Generator Created')
+    # valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band, training=False)
+    # # Get validation batch
+    # (valid_sources_batch, valid_targets_batch, _) = next(valid_batch_generator)
 
     # Create Session 
     with tf.Session(graph=train_graph) as sess:
         # Init weight
         print('\n\nInit variables...')
         sess.run(tf.global_variables_initializer())
-        learning_r = args.learning_rate
         # Training Loop
         for epoch_i in range(1, args.epochs+1):
             print('Epoch {} start...'.format(epoch_i))
@@ -122,26 +149,30 @@ if __name__ == '__main__':
             for batch_i, (sources_batch, targets_batch, num_batch) in enumerate(train_batch_generator):
                 #print('Batch {} start...'.format(batch_i))
 
-                _, loss = sess.run( [train_op, cost],
+                _, loss, _ = sess.run( [train_op, cost, add_global],
                     {input_data: sources_batch,
-                     targets: targets_batch,
-                     lr: learning_r})
+                     targets: targets_batch})
 
                 if batch_i % args.display_step == 0:
                     
-                    # Calculate validation loss
-                    validation_loss = sess.run( [cost],
-                        {input_data: valid_sources_batch,
-                         targets: valid_targets_batch,
-                         lr: learning_r})
+                    valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band, training=False)
+                    all_loss = []
+                    for (valid_sources_batch, valid_targets_batch, _) in valid_batch_generator:
+
+                        # Calculate validation loss
+                        validation_loss, LR = sess.run( [cost, optimizer._lr],
+                            {input_data: valid_sources_batch,
+                             targets: valid_targets_batch})
+                        all_loss.append(validation_loss)
                     
-                    print(' - Epoch {:>3}/{} | Batch {:>4}/{} | Training Loss: {:>6.3f} | Validation loss: {:>6.3f}'
+                    print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Training Loss: {:>6.3f} | Validation loss: {:>6.3f}'
                           .format(epoch_i,
                                   args.epochs, 
                                   batch_i, 
                                   num_batch, 
+                                  LR, 
                                   loss, 
-                                  validation_loss[0]))
+                                  sum(all_loss)/len(all_loss)))
         
         # Save model
         saver = tf.train.Saver()

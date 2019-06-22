@@ -6,7 +6,7 @@ In this implementation, we assume all keypoints share same moving period and no 
 
 Among this assumption, we define an **Action** to be a set of skeleton keypoints move together along a set fixed directions during a period of time.
 
-And, how we label the Action's starting-ending points in a video is assigning the **Changing Point Frame** at all moving turning points, e.g. the frame that sitting on chair and stand straght in *tandSit video*.
+And, how we label the Action's starting-ending points in a video is assigning the **Changing Point Frame** at all moving turning points, e.g. the frame that sitting on chair and stand straght in *StandSit video*.
 
 ## Structure
 <p align="center">
@@ -88,13 +88,11 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 
 ## TODO
- - Modify to read 1 frame output 1 result
-     - read 1 frame and output 1 frame's possibility of being Changing Point Frame
-     - do not reset the model state after output 1 frame's result
-     - When to update parameters while training? after whole video (need more data)? is it good?
-     - Is it good that output 1 scale possibility value? or output boolean?
- - Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)
- - LR decay
+ - 3 Method output
+    - Probability: strengthen the non-zero field penalty
+    - Boolean: odd frames input, output 1 frame information
+    - Time error
+ - ~~Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)~~
  - Add dropout
  - Add batch normalize
  - Auto hyperparameter finding

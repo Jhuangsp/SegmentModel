@@ -17,7 +17,7 @@ def get_inputs():
     # Learning rate
     learning_rate = tf.placeholder(tf.float32, name='learning_rate')
     
-    return inputs, targets, learning_rate
+    return inputs, targets
 
 class Seq2Seq(object):
     '''

@@ -184,7 +184,7 @@ class DataProcess(object):
             
             yield np.array(sources_batch), np.array(targets_batch), num_batch
 
-    def Batch_Generator(self, source_split, target_split, input_seq_length, out_band_length):
+    def Batch_Generator(self, source_split, target_split, input_seq_length, out_band_length, training=True):
         '''
         Define generator to generate batch
         Random pick sample and start point
@@ -197,14 +197,15 @@ class DataProcess(object):
         for activity,data in source_split.items():
             for start_i in range(data.shape[0]-input_seq_length):
                 pool.append((activity, start_i))
-        random.shuffle(pool)
         num_batch = len(pool) // self.batch_size
 
         OutOfBand_size = (input_seq_length - out_band_length) // 2
 
-        print(' - Total Batches: {:2d} | Videos: {:2d} | Input Length: {:2d}'.format(num_batch, samples, input_seq_length))
-        print(' - Batche Shape: ({0:}, {1:}, {2:}) (source) | ({0:}, {3:}, {1:}) (target)\n'.format(
-                                                self.batch_size, input_seq_length, self.input_size, self.decoder_steps))
+        if training:
+            random.shuffle(pool)
+            print(' - Total Batches: {:2d} | Videos: {:2d} | Input Length: {:2d}'.format(num_batch, samples, input_seq_length))
+            print(' - Batche Shape: ({0:}, {1:}, {2:}) (source) | ({0:}, {3:}, {1:}) (target)\n'.format(
+                                                    self.batch_size, input_seq_length, self.input_size, self.decoder_steps))
 
         for batch_i in range(num_batch):
             pick = pool[batch_i*self.batch_size:(batch_i+1)*self.batch_size]
