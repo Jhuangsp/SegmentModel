@@ -49,33 +49,6 @@ class DataProcess(object):
          - target_data: [samples, decoder_steps, self.max_len]
         '''
 
-        # print('==> Loading data...\n')
-        # source_data = np.zeros((len(self.source_path), self.max_len, self.input_size), dtype=np.float32)
-        # for idxt, (activity, frames) in enumerate(self.source_path.items()):
-        #     frame_data = np.zeros((self.max_len ,self.input_size), dtype=np.float32)
-        #     for i,frame in enumerate(frames):
-        #         with open(frame) as json_file:
-        #             data = json.load(json_file)
-        #             #np.array(data['people'][0]['pose_keypoints']).reshape(-1,3)
-        #             frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints'])) # need normalize
-        #     if i < self.max_len - 1:
-        #         frame_data[i+1:] = frame_data[i]
-        #     source_data[idxt] = frame_data
-        # print('Source data shape (samples, max_data_steps, input_size):', source_data.shape) 
-
-
-        # target_data = np.zeros((len(self.target_path), self.decoder_steps, self.max_len), dtype=np.float32)
-        # for idxt, label_file in enumerate(self.target_path):
-        #     loaded = np.load(label_file)
-        #     lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
-        #     ns = [2, 1, 0.25] # less accurate -> more accurate
-        #     assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
-        #     for s in range(self.decoder_steps):
-        #         lf[s] = utils.gaussian_weighted(loaded, ns[s]) # need blur
-        #     target_data[idxt, :, :lf.shape[1]] = lf
-        # print('Target data shape (samples, decoder_steps, max_data_steps):', target_data.shape) 
-        # print('\n')
-
         # Dick type
         print('==> Loading data...\n')
         source_data = {}
@@ -108,26 +81,11 @@ class DataProcess(object):
 
     def Split_dataset(self):
         '''
-        將資料分割成 Training/Validation data
+        Split data into Training/Validation data
         '''
 
-        # print('==> Spliting Dataset...\n')
-        # # 將 dataset分割為 train和 1個 video長的 validation
-        # train_source = self.source_data[1:,:,:]
-        # train_target = self.target_data[1:,:,:]
-        # valid_source = self.source_data[:1,:,:]
-        # valid_target = self.target_data[:1,:,:]
-
-        # print('Training source: {}, Training target: {}'.format(train_source.shape, train_target.shape))
-        # print('Validate source: {}, Validate target: {}'.format(valid_source.shape, valid_target.shape))
-
-        # train_set = {'source':train_source, 'target':train_target}
-        # valid_set = {'source':valid_source, 'target':valid_target}
-        # print('Done Spliting...')
-        # print('\n')
-
         print('==> Spliting Dataset...\n')
-        # 將 dataset分割為 train和 1個 video長的 validation
+        # 1 video for validation
         train_source = dict(list(self.source_data.items())[1:])
         train_target = dict(list(self.target_data.items())[1:])
         valid_source = dict(list(self.source_data.items())[:1])

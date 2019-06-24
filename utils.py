@@ -71,3 +71,14 @@ def gaussian_weighted(data_list, n):
     # plt.ylim([-0.1, 1.1])
     # plt.show()
     return weighted_data_list
+
+
+def oblique_mean(data):
+    rows, cols = data.shape
+    ans     = np.zeros((rows+cols-1), dtype=np.float32)
+    divider = np.zeros((rows+cols-1), dtype=np.float32)
+    tmp = np.ones((cols), dtype=np.float32)
+    for i in range(rows):
+        ans[i:i+cols] += data[i,:]
+        divider[i:i+cols] += tmp
+    return (ans/divider)

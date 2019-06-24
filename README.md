@@ -87,12 +87,52 @@ We do not directly use the target as ground truth, we weight the target with [Di
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_train.png" alt="after_sigmoid_lr1e-4_train">
 </p>
 
+
+### Argument 2019-06-21
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+ - RNN size: 50
+ - RNN layers: 4
+ - **Input size: 20 frames**
+ - **Output size: 10 frames**
+ - **Weight: 20:1**
+
+### Validation result
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validall.png" alt="decay_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validpart.png" alt="decay_part">
+</p>
+
+
+### Argument 2019-06-24
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+ - RNN size: 50
+ - RNN layers: 4
+ - **Input size: 21 frames**
+ - **Output size: 1 frames**
+ - **Weight: 20:1**
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validall.png" alt="out1_decay_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
+</p>
+
 ## TODO
+ - Technical documents (done)
  - 3 Method output
-    - Probability: strengthen the non-zero field penalty
-    - Boolean: odd frames input, output 1 frame information
+    - Probability: strengthen the non-zero field penalty (done)
+    - Scale output: odd frames input, output 1 frame information (done)
     - Time error
  - ~~Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)~~
+ - Add decay (done)
  - Add dropout
  - Add batch normalize
  - Auto hyperparameter finding

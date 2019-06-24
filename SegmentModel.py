@@ -240,7 +240,7 @@ class Seq2Seq(object):
             with tf.variable_scope("decode", reuse=True):
                 # step = 1
                 PREDICT_STEP = 1
-                # 創建 start_tokens for each batches [batch_size, steps, output_len]
+                # Create start_tokens for each batches [batch_size, steps, output_len]
                 self.start_tokens = tf.fill([self.batch_size, PREDICT_STEP, self.out_length], 0.5, name='start_tokens')
                 train_length = tf.fill([self.batch_size], PREDICT_STEP)
                 
