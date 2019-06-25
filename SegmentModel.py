@@ -15,9 +15,9 @@ def get_inputs():
     targets = tf.placeholder(tf.float32, [None, None, None], name='targets') # (batch_size, steps, output_size)
     
     # Learning rate
-    learning_rate = tf.placeholder(tf.float32, name='learning_rate')
+    keep_rate = tf.placeholder(tf.float32, name='keep_rate')
     
-    return inputs, targets
+    return inputs, targets, keep_rate
 
 class Seq2Seq(object):
     '''
@@ -36,13 +36,14 @@ class Seq2Seq(object):
         - input_size:           Input size of each steps
         - decoder_steps:    Number of steps should decoder do.
     '''
-    def __init__(self, input_data, targets,
+    def __init__(self, input_data, targets, keep_rate,
                   seq_length, out_length, rnn_size, num_layers, batch_size, 
                   input_size, decoder_steps):
         super(Seq2Seq, self).__init__()
 
         self.input_data = input_data
         self.targets = targets
+        self.keep_rate = keep_rate
 
         self.seq_length = seq_length
         self.out_length = out_length
@@ -68,7 +69,7 @@ class Seq2Seq(object):
             return decoder_input
 
 
-        self.encoder = self.Encoder(self.input_data, 
+        self.encoder = self.Encoder(self.input_data, self.keep_rate,
                                     self.seq_length, self.rnn_size, self.num_layers, self.batch_size,
                                     self.input_size)
 
@@ -77,6 +78,7 @@ class Seq2Seq(object):
 
         self.decoder = self.Decoder(self.encoder.encoder_state,
                                     self.decoder_input,
+                                    self.keep_rate,
                                     self.out_length, self.rnn_size, self.num_layers, self.batch_size,
                                     self.decoder_steps)
 
@@ -98,11 +100,12 @@ class Seq2Seq(object):
             - encoder_state:    Long-term memory and Short-term momory at the end of steps 
                                     ([batch_size, RNN_size], [batch_size, RNN_size])
         '''
-        def __init__(self, input_data, seq_length, 
+        def __init__(self, input_data, keep_rate, seq_length, 
                        rnn_size, num_layers, batch_size, input_size):
             super(Seq2Seq.Encoder, self).__init__()
 
             self.input_data = input_data
+            self.keep_rate = keep_rate
 
             self.seq_length = seq_length
             self.rnn_size = rnn_size
@@ -115,11 +118,15 @@ class Seq2Seq(object):
 
             # LSTM unit
             def get_lstm_cell(rnn_size):
-                lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
+                #lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, dropout_keep_prob=self.keep_rate)
+                #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9, output_keep_prob=0.9) # dropout
+                #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9) # dropout
                 return lstm_cell
 
             # Multi-layer LSTM
             self.cells = tf.contrib.rnn.MultiRNNCell([ get_lstm_cell(self.rnn_size) for _ in range(self.num_layers) ])
+            #self.cells = tf.nn.rnn_cell.DropoutWrapper(self.cells, output_keep_prob=0.9) # dropout
 
             # Result
             self.encoder_output, self.encoder_state = self.forward()
@@ -175,12 +182,13 @@ class Seq2Seq(object):
             - predicting_decoder_output:   Short-term momory output by ALL steps of predicting [batch_size, steps, RNN_size]
         '''
 
-        def __init__(self, encoder_state, decoder_input, 
+        def __init__(self, encoder_state, decoder_input, keep_rate,
                        out_length, rnn_size, num_layers, batch_size, decoder_steps):
             super(Seq2Seq.Decoder, self).__init__()
 
             self.encoder_state = encoder_state
             self.decoder_input = decoder_input
+            self.keep_rate = keep_rate
 
             self.out_length = out_length
             self.rnn_size = rnn_size
@@ -194,11 +202,15 @@ class Seq2Seq(object):
 
             # LSTM unit
             def get_lstm_cell(rnn_size):
-                lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, dropout_keep_prob=self.keep_rate)
+                # lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
+                # lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9, output_keep_prob=0.9) # dropout
+                #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9) # dropout
                 return lstm_cell
 
             # Multi-layer LSTM
             self.cells = tf.contrib.rnn.MultiRNNCell([get_lstm_cell(self.rnn_size) for _ in range(self.num_layers)])
+            #self.cells = tf.nn.rnn_cell.DropoutWrapper(self.cells, output_keep_prob=0.9) # dropout
 
             # RESULT
             self.training_decoder_output, self.predicting_decoder_output = self.forward()

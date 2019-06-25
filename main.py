@@ -90,11 +90,11 @@ if __name__ == '__main__':
         with train_graph.as_default():
             
             # Get placeholder
-            (input_data, targets) = SegmentModel.get_inputs()
+            (input_data, targets, keep_rate) = SegmentModel.get_inputs()
             
             # Build Sequence to Sequence Model 
             print('==> Creating Model...\n')
-            Net = SegmentModel.Seq2Seq( input_data=input_data, targets=targets,
+            Net = SegmentModel.Seq2Seq( input_data=input_data, targets=targets, keep_rate=keep_rate,
                                         seq_length=args.in_frames, out_length=args.out_band, rnn_size=args.rnn_size, num_layers=args.num_layers, batch_size=args.batch_size, 
                                         input_size=input_size, decoder_steps=args.decoder_steps)
 
@@ -156,7 +156,8 @@ if __name__ == '__main__':
 
                     _, loss, _ = sess.run( [train_op, cost, add_global],
                         {input_data: sources_batch,
-                         targets: targets_batch})
+                         targets: targets_batch,
+                         keep_rate: 0.9})
 
                     if batch_i % args.display_step == 0:
                         
@@ -167,7 +168,8 @@ if __name__ == '__main__':
                             # Calculate validation loss
                             validation_loss, LR = sess.run( [cost, optimizer._lr],
                                 {input_data: valid_sources_batch,
-                                 targets: valid_targets_batch})
+                                 targets: valid_targets_batch,
+                                 keep_rate: 0.9})
                             all_loss.append(validation_loss)
                         
                         print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Training Loss: {:>6.3f} | Validation loss: {:>6.3f}'
@@ -212,7 +214,7 @@ if __name__ == '__main__':
         
         for i in range(length):
             indata = infer_data[i:i+args.in_frames, :]
-            answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)) })[0,0]
+            answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)), keep_rate: 1.0 })[0,0]
 
     a_logits = oblique_mean(answer_logits)
     ls = np.arange(a_logits.shape[0])
