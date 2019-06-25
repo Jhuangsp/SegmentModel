@@ -119,7 +119,7 @@ class Seq2Seq(object):
             # LSTM unit
             def get_lstm_cell(rnn_size):
                 #lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
-                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, dropout_keep_prob=self.keep_rate)
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, layer_norm=False, dropout_keep_prob=self.keep_rate)
                 #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9, output_keep_prob=0.9) # dropout
                 #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9) # dropout
                 return lstm_cell
@@ -202,7 +202,7 @@ class Seq2Seq(object):
 
             # LSTM unit
             def get_lstm_cell(rnn_size):
-                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, dropout_keep_prob=self.keep_rate)
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(rnn_size, layer_norm=False, dropout_keep_prob=self.keep_rate)
                 # lstm_cell = tf.contrib.rnn.LSTMCell(rnn_size, initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
                 # lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9, output_keep_prob=0.9) # dropout
                 #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, input_keep_prob=0.9) # dropout

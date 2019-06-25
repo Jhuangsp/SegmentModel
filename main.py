@@ -210,8 +210,10 @@ if __name__ == '__main__':
         loader.restore(sess, checkpoint)
 
         input_data = loaded_graph.get_tensor_by_name('inputs:0')
+        keep_rate = loaded_graph.get_tensor_by_name('keep_rate:0')
         logits = loaded_graph.get_tensor_by_name('inference_result:0')
         
+        print('Start')
         for i in range(length):
             indata = infer_data[i:i+args.in_frames, :]
             answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)), keep_rate: 1.0 })[0,0]

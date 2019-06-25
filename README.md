@@ -125,6 +125,50 @@ We do not directly use the target as ground truth, we weight the target with [Di
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
 </p>
 
+
+### Argument 2019-06-25
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+ - RNN size: 50
+ - RNN layers: 4
+ - **Input size: 20 frames**
+ - **Output size: 10 frames**
+ - **Weight: 20:1**
+ - **Batch normalize**
+ - **Dropout: keep_rate = 0.9 (while training)**
+Very slow (30M -> 2HR)
+Loss dicrease faster at the early stage (2HR)
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/validall.png" alt="DO_BN_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/validpart.png" alt="DO_BN_part">
+</p>
+
+
+### Argument 2019-06-25_2
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+ - RNN size: 50
+ - RNN layers: 4
+ - **Input size: 20 frames**
+ - **Output size: 10 frames**
+ - **Weight: 20:1**
+ - ~~Batch normalize~~
+ - **Dropout: keep_rate = 0.9 (while training)**
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/validall.png" alt="DO_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/validpart.png" alt="DO_part">
+</p>
+
 ## TODO
  - Technical documents (done)
  - 3 Method output
@@ -133,7 +177,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
     - Time error
  - ~~Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)~~
  - Add decay (done)
- - Add dropout
- - Add batch normalize
+ - Add dropout (done)
+ - Add batch normalize (done)
  - Auto hyperparameter finding
 
