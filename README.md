@@ -142,10 +142,10 @@ Loss dicrease faster at the early stage (2HR)
 
 ### Validation result 
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/validall.png" alt="DO_BN_all">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/all.png" alt="DO_BN_all">
 </p>
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/validpart.png" alt="DO_BN_part">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/part.png" alt="DO_BN_part">
 </p>
 
 
@@ -163,10 +163,10 @@ Loss dicrease faster at the early stage (2HR)
 
 ### Validation result 
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/validall.png" alt="DO_all">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/all.png" alt="DO_all">
 </p>
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/validpart.png" alt="DO_part">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/part.png" alt="DO_part">
 </p>
 
 ## TODO
