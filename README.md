@@ -50,7 +50,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 ## Result
 
 <details>
-<summary>Argument 2019-05-27</summary>
+<summary>First 2019-05-27</summary>
 
 ### Argument 2019-05-27
  - Epochs: 100
@@ -71,6 +71,10 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 </details>
 
+
+<details>
+<summary>Add Sigmoid + Lower learning rate 2019-06-04</summary>
+
 ### Argument 2019-06-04
  - Epochs: 100
  - Batch size: 15
@@ -89,7 +93,11 @@ We do not directly use the target as ground truth, we weight the target with [Di
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_train.png" alt="after_sigmoid_lr1e-4_train">
 </p>
+</details>
 
+
+<details>
+<summary>Add decay + Add weighted + Output 10 mid 2019-06-21</summary>
 
 ### Argument 2019-06-21
  - Epochs: 50
@@ -108,7 +116,11 @@ We do not directly use the target as ground truth, we weight the target with [Di
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validpart.png" alt="decay_part">
 </p>
+</details>
 
+
+<details>
+<summary>Add decay + Add weighted + Output 1 mid 2019-06-24</summary>
 
 ### Argument 2019-06-24
  - Epochs: 50
@@ -127,7 +139,11 @@ We do not directly use the target as ground truth, we weight the target with [Di
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
 </p>
+</details>
 
+
+<details>
+<summary>Add Batch normalize + Add Dropout 2019-06-25</summary>
 
 ### Argument 2019-06-25
  - Epochs: 50
@@ -150,7 +166,11 @@ Loss dicrease faster at the early stage (2HR)
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/part.png" alt="DO_BN_part">
 </p>
+</details>
 
+
+<details>
+<summary>Only add Dropout 2019-06-25_2</summary>
 
 ### Argument 2019-06-25_2
  - Epochs: 50
@@ -171,6 +191,7 @@ Loss dicrease faster at the early stage (2HR)
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/part.png" alt="DO_part">
 </p>
+</details>
 
 ## TODO
  - Technical documents (done)
@@ -183,4 +204,6 @@ Loss dicrease faster at the early stage (2HR)
  - Add dropout (done)
  - Add batch normalize (done)
  - Auto hyperparameter finding
+ - Data preprocess
+ - Modify Gaussian Kernel
 
