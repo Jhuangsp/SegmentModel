@@ -285,7 +285,7 @@ Loss dicrease faster at the early stage (2HR)
 
 ### Validation result 
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_2/all.png" alt="new_kernal_all">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_100/all.png" alt="new_kernal_all">
 </p>
 </details>
 
