@@ -69,7 +69,8 @@ class DataProcess(object):
         for activity_name, label_list in self.target_path.items():
             loaded = np.load(label_list)
             lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
-            ns = [2, 1, 0.25] # less accurate -> more accurate
+            # ns = [2, 1, 0.25] # less accurate -> more accurate
+            ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
                 lf[s] = utils.gaussian_weighted(loaded, ns[s])
@@ -86,10 +87,14 @@ class DataProcess(object):
 
         print('==> Spliting Dataset...\n')
         # 1 video for validation
-        train_source = dict(list(self.source_data.items())[1:])
-        train_target = dict(list(self.target_data.items())[1:])
-        valid_source = dict(list(self.source_data.items())[:1])
-        valid_target = dict(list(self.target_data.items())[:1])
+        # train_source = dict(list(self.source_data.items())[1:])
+        # train_target = dict(list(self.target_data.items())[1:])
+        # valid_source = dict(list(self.source_data.items())[:1])
+        # valid_target = dict(list(self.target_data.items())[:1])
+        train_source = dict(list(self.source_data.items())[:6] + list(self.source_data.items())[7:])
+        train_target = dict(list(self.target_data.items())[:6] + list(self.target_data.items())[7:])
+        valid_source = dict(list(self.source_data.items())[6:7])
+        valid_target = dict(list(self.target_data.items())[6:7])
 
         print('Training source:')
         for k,i in train_source.items():

@@ -143,7 +143,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>Add Batch normalize + Add Dropout 2019-06-25</summary>
+<summary>Add Batch normalize + Add Dropout 2019-06-25 (slow & bad)</summary>
 
 ### Argument 2019-06-25
  - Epochs: 50
@@ -193,6 +193,102 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
+
+<details>
+<summary>New Kernel 2019-06-30</summary>
+
+### Argument 2019-06-30
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - **Cancel the 3 different Gaussian Kernel**
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/all.png" alt="new_kernal_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/part.png" alt="new_kernal_part">
+</p>
+</details>
+
+
+<details>
+<summary>New Kernel + 30 Batch size 2019-06-30_2 (Bad)</summary>
+
+### Argument 2019-06-30_2
+ - Epochs: 50
+ - Batch size: **30**
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - **Cancel the 3 different Gaussian Kernel**
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_30_all">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
+</p>
+</details>
+
+
+<details>
+<summary>New Kernel 2019-06-30_squat</summary>
+
+### Argument 2019-06-30
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - **Cancel the 3 different Gaussian Kernel**
+ - **Change validation data to *Squat***
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
+</p>
+</details>
+
+
+<details>
+<summary>New Kernel + 100 Epoch 2019-06-30_squat</summary>
+
+### Argument 2019-06-30
+ - Epochs: **100**
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - **Cancel the 3 different Gaussian Kernel**
+ - **Change validation data to *Squat***
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_2/all.png" alt="new_kernal_all">
+</p>
+</details>
+
 ## TODO
  - Technical documents (done)
  - 3 Method output
@@ -203,7 +299,9 @@ Loss dicrease faster at the early stage (2HR)
  - Add decay (done)
  - Add dropout (done)
  - Add batch normalize (done)
+ - ~~Data preprocess~~
+ - Modify Gaussian Kernel (done)
+ - Peak finding
+ - Proper evaluation method
  - Auto hyperparameter finding
- - Data preprocess
- - Modify Gaussian Kernel
 

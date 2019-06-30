@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 # Loss function MSE/SSE
 
                 penalty = tf.cast(targets > 0, dtype=tf.float32) * 20 + 1
-                cost = tf.reduce_sum(tf.square(penalty * tf.subtract(training_logits, targets)))
+                cost = tf.reduce_mean(tf.square(penalty * tf.subtract(training_logits, targets)))
 
                 # Optimizer
                 global_step = tf.Variable(0, trainable=False)
@@ -132,6 +132,7 @@ if __name__ == '__main__':
         ## Training
         print('==> Start Training...\n')
         checkpoint = "./model/trained_model.ckpt"
+        best_point = "./model/best_model.ckpt"
 
         # # Create batch generator of training data
         # print('Validate Generator Created')
@@ -141,6 +142,9 @@ if __name__ == '__main__':
 
         # Create Session 
         with tf.Session(graph=train_graph) as sess:
+            saver = tf.train.Saver()
+            best = 10.
+
             # Init weight
             print('\n\nInit variables...')
             sess.run(tf.global_variables_initializer())
@@ -180,9 +184,12 @@ if __name__ == '__main__':
                                       LR, 
                                       loss, 
                                       sum(all_loss)/len(all_loss)))
+                        if sum(all_loss)/len(all_loss) < best:
+                            saver.save(sess, best_point)
+                            best = sum(all_loss)/len(all_loss)
+                            print('Best Model at epoch {}, Loss {:>6.3f}'.format(epoch_i, best))
             
             # Save model
-            saver = tf.train.Saver()
             saver.save(sess, checkpoint)
             print('Model Trained and Saved\n')
 
@@ -200,6 +207,7 @@ if __name__ == '__main__':
     length = infer_data.shape[0] - (args.in_frames-1)
     print('infer_data shape:', infer_data.shape)
 
+    # checkpoint = "./model/best_model.ckpt"
     checkpoint = "./model/trained_model.ckpt"
 
     loaded_graph = tf.Graph()
@@ -217,6 +225,7 @@ if __name__ == '__main__':
         for i in range(length):
             indata = infer_data[i:i+args.in_frames, :]
             answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)), keep_rate: 1.0 })[0,0]
+            # answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (30,1,1)), keep_rate: 1.0 })[0,0]
 
     a_logits = oblique_mean(answer_logits)
     ls = np.arange(a_logits.shape[0])
