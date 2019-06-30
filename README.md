@@ -304,4 +304,5 @@ Loss dicrease faster at the early stage (2HR)
  - Peak finding
  - Proper evaluation method
  - Auto hyperparameter finding
+ - Bring back 3 diffrent Gaussian Kernel
 
