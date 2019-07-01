@@ -33,6 +33,8 @@ parser.add_argument('--display_step', type=int, default=50,
                     help='Display loss for every N batches (default:50)')
 parser.add_argument('--test', action="store_true",
                     help='Only do inference')
+parser.add_argument('--info', type=str,
+                    help='Information about this training.')
 
 # Model structure parameter
 parser.add_argument('-rs', '--rnn_size', type=int, default=50,
@@ -53,23 +55,23 @@ if args.in_frames <= args.out_band:
 elif (args.in_frames-args.out_band)%2 != 0:
     parser.error('The value -if larger than -ob must divisible by 2.')
 
-# save args
-with open('./model/command_args.txt', 'w') as f:
-    f.write('\n'.join(sys.argv[1:]))
 
-# save information
-now = datetime.datetime.now()
-current_time = '{:04d}_{:02d}_{:02d}_{:02d}{:02d}{:02d}\n'.format(
-    now.year, 
-    now.month, 
-    now.day, 
-    now.hour, 
-    now.minute, 
-    now.second)
-with open('./model/info.txt', 'w') as out_file:
-    info = input('Enter infomation:')
-    out_file.write(current_time)
-    out_file.write(info)
+if args.info != None:
+    # save args
+    with open('./model/command_args.txt', 'w') as f:
+        f.write('\n'.join(sys.argv[1:]))
+    # save information
+    now = datetime.datetime.now()
+    current_time = '{:04d}_{:02d}_{:02d}_{:02d}{:02d}{:02d}\n'.format(
+        now.year, 
+        now.month, 
+        now.day, 
+        now.hour, 
+        now.minute, 
+        now.second)
+    with open('./model/info.txt', 'w') as out_file:
+        out_file.write(current_time)
+        out_file.write(args.info)
 
 
 if __name__ == '__main__':
@@ -209,6 +211,8 @@ if __name__ == '__main__':
 
     # checkpoint = "./model/best_model.ckpt"
     checkpoint = "./model/trained_model.ckpt"
+    result = "./model/result.npy"
+    gt = "./model/gt.npy"
 
     loaded_graph = tf.Graph()
     answer_logits = np.zeros((length, args.out_band))   
@@ -231,10 +235,12 @@ if __name__ == '__main__':
     ls = np.arange(a_logits.shape[0])
     plt.scatter(ls, a_logits, color='orange')
     plt.plot(ls, a_logits, color='orange')
+    np.save(result, a_logits)
 
     ls = np.arange(len(infer_targ.reshape(3,-1)[-1]))
     plt.scatter(ls, infer_targ.reshape(3,-1)[-1])
     plt.plot(ls, infer_targ.reshape(3,-1)[-1])
+    np.save(gt, infer_targ.reshape(3,-1)[-1])
 
     plt.xlabel('Frame')
     plt.ylabel('Probability of Changing Point Frame')

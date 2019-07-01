@@ -220,7 +220,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>New Kernel + 30 Batch size 2019-06-30_2 (Bad)</summary>
+<summary>New Kernel + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
 
 ### Argument 2019-06-30_2
  - Epochs: 50
@@ -233,6 +233,7 @@ Loss dicrease faster at the early stage (2HR)
  - Weight: 20:1
  - Dropout: keep_rate = 0.9 (while training)
  - **Cancel the 3 different Gaussian Kernel**
+ - **Change validation data to *Squat***
 
 ### Validation result 
 <p align="center">
@@ -247,7 +248,7 @@ Loss dicrease faster at the early stage (2HR)
 <details>
 <summary>New Kernel 2019-06-30_squat</summary>
 
-### Argument 2019-06-30
+### Argument 2019-06-30_squat
  - Epochs: 50
  - Batch size: 15
  - Learning rate: 0.0001 (decay half at 60% & 80%)
@@ -270,7 +271,7 @@ Loss dicrease faster at the early stage (2HR)
 <details>
 <summary>New Kernel + 100 Epoch 2019-06-30_squat</summary>
 
-### Argument 2019-06-30
+### Argument 2019-06-30_squat_100
  - Epochs: **100**
  - Batch size: 15
  - Learning rate: 0.0001 (decay half at 60% & 80%)
@@ -289,6 +290,28 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
+
+<details>
+<summary>Bring back 3 diffrent Gaussian Kernel + 100 Epoch 2019-07-01 (similar to 30 Batch size)</summary>
+
+### Argument 2019-07-01
+ - Epochs: **100**
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - ~~**Cancel the 3 different Gaussian Kernel**~~
+ - **Change validation data to *Squat***
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
+</p>
+</details>
 ## TODO
  - Technical documents (done)
  - 3 Method output
@@ -304,5 +327,5 @@ Loss dicrease faster at the early stage (2HR)
  - Peak finding
  - Proper evaluation method
  - Auto hyperparameter finding
- - Bring back 3 diffrent Gaussian Kernel
+ - Bring back 3 diffrent Gaussian Kernel (done)
 
