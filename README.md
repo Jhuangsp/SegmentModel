@@ -312,6 +312,7 @@ Loss dicrease faster at the early stage (2HR)
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
 </p>
 </details>
+
 ## TODO
  - Technical documents (done)
  - 3 Method output
