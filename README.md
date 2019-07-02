@@ -38,7 +38,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 
 ##### 3 different size Discrete Gaussian Kernel
-<p align="center" width="150">
+<p align="center" width="100">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/GaussianWeight.png" alt="GaussianWeight" width="400">
 </p>
 
@@ -60,11 +60,11 @@ We do not directly use the target as ground truth, we weight the target with [Di
         - RNN layers: 4
         - Frames of 1 Input Sequence: 20
 Validation result (Bad performance)
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
     </p>
 Training result
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/train_result.png" alt="train_result">
     </p>
 </details>
@@ -81,11 +81,11 @@ Training result
         - Frames of 1 Input Sequence: 20
         - **Add sigmoid**
 Validation result (Bad performance)
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_valid.png" alt="after_sigmoid_lr1e-4_valid">
     </p>
 Training result
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_train.png" alt="after_sigmoid_lr1e-4_train">
     </p>
 </details>
@@ -106,10 +106,10 @@ Add learning rate **decay**, and strengthen the change point contribution by add
          - **Output size: 10 frames**
          - **Weight: 20:1**
 Validation result
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validall.png" alt="decay_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validpart.png" alt="decay_part">
     </p>
 </details>
@@ -128,10 +128,10 @@ Try the second output type, witch only output only **one middle** frame.
          - **Output size: 1 frames**
          - **Weight: 20:1**
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validall.png" alt="out1_decay_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
     </p>
 </details>
@@ -155,10 +155,10 @@ Very slow (30M -> 2HR), Loss dicrease faster at the early stage (2HR)
          - **Batch normalize**
          - **Dropout: keep_rate = 0.9 (while training
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/all.png" alt="DO_BN_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/part.png" alt="DO_BN_part">
     </p>
 </details>
@@ -179,10 +179,10 @@ The Batch Normalize make the loss decrease faster, but it took more than 3 times
          - ~~Batch normalize~~
          - **Dropout: keep_rate = 0.9 (while training)**
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/all.png" alt="DO_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/part.png" alt="DO_part">
     </p>
 </details>
@@ -205,10 +205,10 @@ Expect the significant ups and downs wave, instead of high possility. Replace 3 
          - Dropout: keep_rate = 0.9 (while training)
          - **Cancel the 3 different Gaussian Kernel**
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/all.png" alt="new_kernal_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/part.png" alt="new_kernal_part">
     </p>
 </details>
@@ -230,14 +230,14 @@ Change validation data from ***run_front*** to ***squat***.
          - **Cancel the 3 different Gaussian Kernel**
          - **Change validation data to *Squat***
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
     </p>
 </details>
 
 Change the Batch size.
 <details>
-    <summary size="4">New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
+    <summary>New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
     Argument 2019-06-30_2
 
          - Epochs: 50
@@ -252,10 +252,10 @@ Change the Batch size.
          - **Cancel the 3 different Gaussian Kernel**
          - **Change validation data to *Squat***
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/all.png" alt="new_kernal_30_all">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
     </p>
 </details>
@@ -279,7 +279,7 @@ We found that the validation loss did'nt show **Overfitting** correctly. Epoch 1
          - **Cancel the 3 different Gaussian Kernel**
          - **Change validation data to *Squat***
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_100/all.png" alt="new_kernal_all">
     </p>
 </details>
@@ -301,7 +301,7 @@ Try 100 epoch on original 3 diffrent level Gaussian Kernel. It become better, bu
          - ~~**Cancel the 3 different Gaussian Kernel**~~
          - **Change validation data to *Squat***
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
     </p>
 </details>
@@ -323,10 +323,10 @@ Try New Fine tune & 100 Epoch several times. Rewrite inference method.
          - Cancel the 3 different Gaussian Kernel
          - Change validation data to *Squat*
 Validation result 
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_2/all.png" alt="Best_all2">
     </p>
-    <p align="center" width="150">
+    <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_3/all.png" alt="Best_all3">
     </p>
 </details>
