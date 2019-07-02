@@ -237,7 +237,7 @@ Validation result
 
 Change the Batch size.
 <details>
-    <summary><font size="4">New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</font></summary>
+    <summary size="4">New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
     Argument 2019-06-30_2
 
          - Epochs: 50
