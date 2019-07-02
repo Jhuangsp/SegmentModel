@@ -51,7 +51,6 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 <details>
     <summary>(Old) First 2019-05-27</summary>
-
     Argument 2019-05-27
      - Epochs: 100
      - Batch size: 15
@@ -60,12 +59,12 @@ We do not directly use the target as ground truth, we weight the target with [Di
      - RNN layers: 4
      - Frames of 1 Input Sequence: 20
 
-    Validation result (Bad performance)
-    <p align="center">
-        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
-    </p>
+Validation result (Bad performance)
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
+</p>
 
-### Training result
+Training result
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/train_result.png" alt="train_result">
 </p>
