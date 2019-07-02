@@ -50,7 +50,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 ## Result
 
 <details>
-<summary>(Old) First 2019-05-27</summary>
+    <summary>(Old) First 2019-05-27</summary>
 
 ### Argument 2019-05-27
  - Epochs: 100
