@@ -59,40 +59,37 @@ We do not directly use the target as ground truth, we weight the target with [Di
         - RNN size: 50
         - RNN layers: 4
         - Frames of 1 Input Sequence: 20
-
 Validation result (Bad performance)
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
-</p>
-
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
+    </p>
 Training result
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/train_result.png" alt="train_result">
-</p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/train_result.png" alt="train_result">
+    </p>
 </details>
 
+---------------------------------------------------------------------------
 
 <details>
-<summary>(Old) Add Sigmoid + Lower learning rate 2019-06-04</summary>
-
-### Argument 2019-06-04
- - Epochs: 100
- - Batch size: 15
- - Learning rate: **0.0001**
- - RNN size: 50
- - RNN layers: 4
- - Frames of 1 Input Sequence: 20
- - **Add sigmoid**
-
-### Validation result (Bad performance)
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_valid.png" alt="after_sigmoid_lr1e-4_valid">
-</p>
-
-### Training result
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_train.png" alt="after_sigmoid_lr1e-4_train">
-</p>
+    <summary>(Old) Add Sigmoid + Lower learning rate 2019-06-04</summary>
+    Argument 2019-06-04
+        
+        - Epochs: 100
+        - Batch size: 15
+        - Learning rate: **0.0001**
+        - RNN size: 50
+        - RNN layers: 4
+        - Frames of 1 Input Sequence: 20
+        - **Add sigmoid**
+Validation result (Bad performance)
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_valid.png" alt="after_sigmoid_lr1e-4_valid">
+    </p>
+Training result
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/after_sigmoid_lr1e-4_train.png" alt="after_sigmoid_lr1e-4_train">
+    </p>
 </details>
 
 Add learning rate **decay**, and strengthen the change point contribution by adding a higher **weight** to the non-zero field.
