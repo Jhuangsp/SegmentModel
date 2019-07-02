@@ -50,7 +50,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 ## Result
 
 <details>
-<summary>~~First 2019-05-27~~</summary>
+<summary>(Old) First 2019-05-27</summary>
 
 ### Argument 2019-05-27
  - Epochs: 100
@@ -73,7 +73,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>~~Add Sigmoid + Lower learning rate 2019-06-04~~</summary>
+<summary>(Old) Add Sigmoid + Lower learning rate 2019-06-04</summary>
 
 ### Argument 2019-06-04
  - Epochs: 100
@@ -95,9 +95,9 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 </details>
 
-
+Add learning rate **decay**, and strengthen the change point contribution by adding a higher **weight** to the non-zero field.
 <details>
-<summary>Add **decay** + Add **weighted** + Output **10** 2019-06-21</summary>
+<summary>Add decay + Add weighted + Output 10 2019-06-21</summary>
 
 ### Argument 2019-06-21
  - Epochs: 50
@@ -118,9 +118,9 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 </details>
 
-
+Try the second output type, witch only output only **one middle** frame.
 <details>
-<summary>Add **decay** + Add **weighted** + Output **1** 2019-06-24</summary>
+<summary>Add decay + Add weighted + Output 1 2019-06-24</summary>
 
 ### Argument 2019-06-24
  - Epochs: 50
@@ -141,9 +141,9 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 </details>
 
-
+Add the **Batch Normalize**, and **Dropout** to speed up training and strengthen the power of model.
 <details>
-<summary>Add **Batch normalize** + Add **Dropout** 2019-06-25 (slow & bad)</summary>
+<summary>Add Batch normalize + Add Dropout 2019-06-25 (slow & bad)</summary>
 
 ### Argument 2019-06-25
  - Epochs: 50
@@ -169,9 +169,9 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+The Batch Normalize make the loss decrease faster, but it took more than 3 times longer than the original method. So remove the BN only do **Dropout**.
 <details>
-<summary>Only add **Dropout** 2019-06-25_2</summary>
+<summary>Only add Dropout 2019-06-25_2</summary>
 
 ### Argument 2019-06-25_2
  - Epochs: 50
@@ -194,9 +194,9 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+Expect the significant ups and downs wave, instead of high possility. Replace 3 different level of Gaussian Kernel, by apply a lower Gaussian Kernel 3 times.
 <details>
-<summary>New **Fine tune** (replace 3 Gaussian Kernel by 1) 2019-06-30</summary>
+<summary>New Fine tune (replace 3 Gaussian Kernel by 1) 2019-06-30</summary>
 
 ### Argument 2019-06-30
  - Epochs: 50
@@ -219,9 +219,32 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+Change validation data from ***run_front*** to ***squat***.
 <details>
-<summary>New **Fine tune** + **30 Batch size** 2019-06-30_2 (**squat**) (Bad)</summary>
+<summary>New Fine tune (squat) 2019-06-30_squat</summary>
+
+### Argument 2019-06-30_squat
+ - Epochs: 50
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - **Cancel the 3 different Gaussian Kernel**
+ - **Change validation data to *Squat***
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
+</p>
+</details>
+
+Change the Batch size.
+<details>
+<summary>New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
 
 ### Argument 2019-06-30_2
  - Epochs: 50
@@ -245,32 +268,9 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+We found that the validation loss did'nt show **Overfitting** correctly. Epoch 100 is showed as Overfitting, but its performace is better than lowest loss checkpoint.
 <details>
-<summary>New Kernel (**squat**) 2019-06-30_squat</summary>
-
-### Argument 2019-06-30_squat
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - **Cancel the 3 different Gaussian Kernel**
- - **Change validation data to *Squat***
-
-### Validation result 
-<p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
-</p>
-</details>
-
-
-<details>
-<summary>New Kernel + 100 Epoch 2019-06-30_squat (BEST)</summary>
+<summary>New Fine tune + 100 Epoch (squat) 2019-06-30_squat_100 (BEST)</summary>
 
 ### Argument 2019-06-30_squat_100
  - Epochs: **100**
@@ -291,7 +291,7 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+Try 100 epoch on original 3 diffrent level Gaussian Kernel. It become better, but **New fine tune** still better.
 <details>
 <summary>Bring back 3 diffrent Gaussian Kernel + 100 Epoch 2019-07-01 (similar to 30 Batch size)</summary>
 
@@ -314,9 +314,9 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
-
+Try New Fine tune & 100 Epoch several times. Rewrite inference method.
 <details>
-<summary>New Kernel + 100 Epoch + New Inference 2019-07-01_2_3 (2nd best)</summary>
+<summary>New Fine tune + 100 Epoch + New Inference 2019-07-01_2_3 (2nd best)</summary>
 
 ### Argument 2019-07-01_2_3
  - Epochs: 100
@@ -340,20 +340,28 @@ Loss dicrease faster at the early stage (2HR)
 </p>
 </details>
 
+## Progress 2019-07-02
+ - Good for model
+    - Add decay
+    - Add weighting
+    - Output 10 instead 1
+    - Dropout
+    - 1 Kerel 3 times
+    - More epoch regardless overfitting (Proper evaluation method)
+ - Bad for model
+    - Batch Normalize
+    - Batch size (hyperopt)
+    - too large Weighting scale
+
 ## TODO
- - Technical documents (done)
  - 3 Method output
     - Probability: strengthen the non-zero field penalty (done)
     - Scale output: odd frames input, output 1 frame information (done)
-    - Time error
+    - ~~Time error~~
  - ~~Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)~~
- - Add decay (done)
- - Add dropout (done)
- - Add batch normalize (done)
  - ~~Data preprocess~~
- - Modify Gaussian Kernel (done)
- - Peak finding
- - Proper evaluation method
+ - **Peak finding**
+ - **Proper evaluation method**
  - Auto hyperparameter finding
- - Bring back 3 diffrent Gaussian Kernel (done)
+ - Code review with handsomeguy
 
