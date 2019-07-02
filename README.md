@@ -38,7 +38,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 </p>
 
 ##### 3 different size Discrete Gaussian Kernel
-<p align="center" width="100">
+<p align="center" width="150">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/GaussianWeight.png" alt="GaussianWeight" width="400">
 </p>
 
@@ -51,15 +51,14 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 <details>
     <summary>(Old) First 2019-05-27</summary>
-    <details>
-        <summary>Argument 2019-05-27</summary>
-            - Epochs: 100
-            - Batch size: 15
-            - Learning rate: 0.001
-            - RNN size: 50
-            - RNN layers: 4
-            - Frames of 1 Input Sequence: 20
-    </details>
+    Argument 2019-05-27
+        
+        - Epochs: 100
+        - Batch size: 15
+        - Learning rate: 0.001
+        - RNN size: 50
+        - RNN layers: 4
+        - Frames of 1 Input Sequence: 20
 Validation result (Bad performance)
     <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/valid_result.png" alt="valid_result">
