@@ -237,7 +237,7 @@ Validation result
 
 Change the Batch size.
 <details>
-    <summary>New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
+    <summary><font size="6">New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</font></summary>
     Argument 2019-06-30_2
 
          - Epochs: 50
@@ -259,6 +259,8 @@ Validation result
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
     </p>
 </details>
+
+---------------------------------------------------------------------------
 
 We found that the validation loss did'nt show **Overfitting** correctly. Epoch 100 is showed as Overfitting, but its performace is better than lowest loss checkpoint.
 <details>
