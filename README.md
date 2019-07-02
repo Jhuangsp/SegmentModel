@@ -69,8 +69,6 @@ Training result
     </p>
 </details>
 
----------------------------------------------------------------------------
-
 <details>
     <summary>(Old) Add Sigmoid + Lower learning rate 2019-06-04</summary>
     Argument 2019-06-04
@@ -92,249 +90,243 @@ Training result
     </p>
 </details>
 
+---------------------------------------------------------------------------
+
 Add learning rate **decay**, and strengthen the change point contribution by adding a higher **weight** to the non-zero field.
 <details>
-<summary>Add decay + Add weighted + Output 10 2019-06-21</summary>
+    <summary>Add decay + Add weighted + Output 10 2019-06-21</summary>
+    Argument 2019-06-21
 
-### Argument 2019-06-21
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 **(decay half at 60% & 80%)**
- - RNN size: 50
- - RNN layers: 4
- - **Input size: 20 frames**
- - **Output size: 10 frames**
- - **Weight: 20:1**
-
-### Validation result
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validall.png" alt="decay_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validpart.png" alt="decay_part">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+         - RNN size: 50
+         - RNN layers: 4
+         - **Input size: 20 frames**
+         - **Output size: 10 frames**
+         - **Weight: 20:1**
+Validation result
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validall.png" alt="decay_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-21/validpart.png" alt="decay_part">
+    </p>
 </details>
 
 Try the second output type, witch only output only **one middle** frame.
 <details>
-<summary>Add decay + Add weighted + Output 1 2019-06-24</summary>
+    <summary>Add decay + Add weighted + Output 1 2019-06-24</summary>
+    Argument 2019-06-24
 
-### Argument 2019-06-24
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 **(decay half at 60% & 80%)**
- - RNN size: 50
- - RNN layers: 4
- - **Input size: 21 frames**
- - **Output size: 1 frames**
- - **Weight: 20:1**
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validall.png" alt="out1_decay_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+         - RNN size: 50
+         - RNN layers: 4
+         - **Input size: 21 frames**
+         - **Output size: 1 frames**
+         - **Weight: 20:1**
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validall.png" alt="out1_decay_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-24/validpart.png" alt="out1_decay_part">
+    </p>
 </details>
 
-Add the **Batch Normalize**, and **Dropout** to speed up training and strengthen the power of model.
+---------------------------------------------------------------------------
+
+Add the **Batch Normalize**, and **Dropout** to speed up training and strengthen the power of model.)**
+Very slow (30M -> 2HR), Loss dicrease faster at the early stage (2HR)
 <details>
-<summary>Add Batch normalize + Add Dropout 2019-06-25 (slow & bad)</summary>
+    <summary>Add Batch normalize + Add Dropout 2019-06-25 (slow & bad)</summary>
+    Argument 2019-06-25
 
-### Argument 2019-06-25
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 **(decay half at 60% & 80%)**
- - RNN size: 50
- - RNN layers: 4
- - **Input size: 20 frames**
- - **Output size: 10 frames**
- - **Weight: 20:1**
- - **Batch normalize**
- - **Dropout: keep_rate = 0.9 (while training)**
-
-Very slow (30M -> 2HR)
-Loss dicrease faster at the early stage (2HR)
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/all.png" alt="DO_BN_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/part.png" alt="DO_BN_part">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+         - RNN size: 50
+         - RNN layers: 4
+         - **Input size: 20 frames**
+         - **Output size: 10 frames**
+         - **Weight: 20:1**
+         - **Batch normalize**
+         - **Dropout: keep_rate = 0.9 (while training
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/all.png" alt="DO_BN_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25/part.png" alt="DO_BN_part">
+    </p>
 </details>
 
 The Batch Normalize make the loss decrease faster, but it took more than 3 times longer than the original method. So remove the BN only do **Dropout**.
 <details>
-<summary>Only add Dropout 2019-06-25_2</summary>
+    <summary>Only add Dropout 2019-06-25_2</summary>
+    Argument 2019-06-25_2
 
-### Argument 2019-06-25_2
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 **(decay half at 60% & 80%)**
- - RNN size: 50
- - RNN layers: 4
- - **Input size: 20 frames**
- - **Output size: 10 frames**
- - **Weight: 20:1**
- - ~~Batch normalize~~
- - **Dropout: keep_rate = 0.9 (while training)**
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/all.png" alt="DO_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/part.png" alt="DO_part">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 **(decay half at 60% & 80%)**
+         - RNN size: 50
+         - RNN layers: 4
+         - **Input size: 20 frames**
+         - **Output size: 10 frames**
+         - **Weight: 20:1**
+         - ~~Batch normalize~~
+         - **Dropout: keep_rate = 0.9 (while training)**
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/all.png" alt="DO_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-25_2/part.png" alt="DO_part">
+    </p>
 </details>
+
+---------------------------------------------------------------------------
 
 Expect the significant ups and downs wave, instead of high possility. Replace 3 different level of Gaussian Kernel, by apply a lower Gaussian Kernel 3 times.
 <details>
-<summary>New Fine tune (replace 3 Gaussian Kernel by 1) 2019-06-30</summary>
+    <summary>New Fine tune (replace 3 Gaussian Kernel by 1) 2019-06-30</summary>
+    Argument 2019-06-30
 
-### Argument 2019-06-30
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - **Cancel the 3 different Gaussian Kernel**
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/all.png" alt="new_kernal_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/part.png" alt="new_kernal_part">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - **Cancel the 3 different Gaussian Kernel**
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/all.png" alt="new_kernal_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30/part.png" alt="new_kernal_part">
+    </p>
 </details>
 
 Change validation data from ***run_front*** to ***squat***.
 <details>
-<summary>New Fine tune (squat) 2019-06-30_squat</summary>
+    <summary>New Fine tune (squat) 2019-06-30_squat</summary>
+    Argument 2019-06-30_squat
 
-### Argument 2019-06-30_squat
- - Epochs: 50
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - **Cancel the 3 different Gaussian Kernel**
- - **Change validation data to *Squat***
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
-</p>
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - **Cancel the 3 different Gaussian Kernel**
+         - **Change validation data to *Squat***
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_all">
+    </p>
 </details>
 
 Change the Batch size.
 <details>
-<summary>New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
+    <summary>New Fine tune + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
+    Argument 2019-06-30_2
 
-### Argument 2019-06-30_2
- - Epochs: 50
- - Batch size: **30**
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - **Cancel the 3 different Gaussian Kernel**
- - **Change validation data to *Squat***
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/all.png" alt="new_kernal_30_all">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
-</p>
+         - Epochs: 50
+         - Batch size: **30**
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - **Cancel the 3 different Gaussian Kernel**
+         - **Change validation data to *Squat***
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/all.png" alt="new_kernal_30_all">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
+    </p>
 </details>
 
 We found that the validation loss did'nt show **Overfitting** correctly. Epoch 100 is showed as Overfitting, but its performace is better than lowest loss checkpoint.
 <details>
-<summary>New Fine tune + 100 Epoch (squat) 2019-06-30_squat_100 (BEST)</summary>
+    <summary>New Fine tune + 100 Epoch (squat) 2019-06-30_squat_100 (BEST)</summary>
+    Argument 2019-06-30_squat_100
 
-### Argument 2019-06-30_squat_100
- - Epochs: **100**
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - **Cancel the 3 different Gaussian Kernel**
- - **Change validation data to *Squat***
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_100/all.png" alt="new_kernal_all">
-</p>
+         - Epochs: **100**
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - **Cancel the 3 different Gaussian Kernel**
+         - **Change validation data to *Squat***
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat_100/all.png" alt="new_kernal_all">
+    </p>
 </details>
 
 Try 100 epoch on original 3 diffrent level Gaussian Kernel. It become better, but **New fine tune** still better.
 <details>
-<summary>Bring back 3 diffrent Gaussian Kernel + 100 Epoch 2019-07-01 (similar to 30 Batch size)</summary>
+    <summary>Bring back 3 diffrent Gaussian Kernel + 100 Epoch 2019-07-01 (similar to 30 Batch size)</summary>
+    Argument 2019-07-01
 
-### Argument 2019-07-01
- - Epochs: **100**
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - ~~**Cancel the 3 different Gaussian Kernel**~~
- - **Change validation data to *Squat***
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
-</p>
+         - Epochs: **100**
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - ~~**Cancel the 3 different Gaussian Kernel**~~
+         - **Change validation data to *Squat***
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
+    </p>
 </details>
 
 Try New Fine tune & 100 Epoch several times. Rewrite inference method.
 <details>
-<summary>New Fine tune + 100 Epoch + New Inference 2019-07-01_2_3 (2nd best)</summary>
+    <summary>New Fine tune + 100 Epoch + New Inference 2019-07-01_2_3 (2nd best)</summary>
+    Argument 2019-07-01_2_3
 
-### Argument 2019-07-01_2_3
- - Epochs: 100
- - Batch size: 15
- - Learning rate: 0.0001 (decay half at 60% & 80%)
- - RNN size: 50
- - RNN layers: 4
- - Input size: 20 frames
- - Output size: 10 frames
- - Weight: 20:1
- - Dropout: keep_rate = 0.9 (while training)
- - Cancel the 3 different Gaussian Kernel
- - Change validation data to *Squat*
-
-### Validation result 
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_2/all.png" alt="Best_all2">
-</p>
-<p align="center" width="150">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_3/all.png" alt="Best_all3">
-</p>
+         - Epochs: 100
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - Cancel the 3 different Gaussian Kernel
+         - Change validation data to *Squat*
+Validation result 
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_2/all.png" alt="Best_all2">
+    </p>
+    <p align="center" width="150">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_3/all.png" alt="Best_all3">
+    </p>
 </details>
 
 ## Progress 2019-07-02
