@@ -5,6 +5,7 @@ import os,sys
 import argparse
 import datetime
 from matplotlib import pyplot as plt
+# from hyperopt import fmin, tpe, hp, Trials, partial
 
 import DataProcess
 import SegmentModel
@@ -21,12 +22,14 @@ parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
                     help='Dimension of joint coordinate (default:2)')
 
 # Training parameter
-parser.add_argument('-e', '--epochs', type=int, default=100,
+parser.add_argument('-e', '--epochs', type=int, default=100, # hyperopt
                     help='Number of Epochs (default:100)')
-parser.add_argument('-b', '--batch_size', type=int, default=15,
+parser.add_argument('-b', '--batch_size', type=int, default=15, # hyperopt
                     help='Batch Size (default:15)')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001,
                     help='Learning Rate (default:0.0001)')
+parser.add_argument('--hyperopt', action="store_true",
+                    help='Do hyperopt training or not.')
 
 # Display parameter
 parser.add_argument('--display_step', type=int, default=50,
@@ -37,9 +40,9 @@ parser.add_argument('--info', type=str,
                     help='Information about this training.')
 
 # Model structure parameter
-parser.add_argument('-rs', '--rnn_size', type=int, default=50,
+parser.add_argument('-rs', '--rnn_size', type=int, default=50, # hyperopt
                     help='RNN Size (default:50)')
-parser.add_argument('-rl', '--num_layers', type=int, default=4,
+parser.add_argument('-rl', '--num_layers', type=int, default=4, # hyperopt
                     help='Number of Layers (default:4)')
 parser.add_argument('-ds', '--decoder_steps', type=int, default=3,
                     help='Steps of decoding (default:3)')
@@ -63,12 +66,8 @@ if args.info != None:
     # save information
     now = datetime.datetime.now()
     current_time = '{:04d}_{:02d}_{:02d}_{:02d}{:02d}{:02d}\n'.format(
-        now.year, 
-        now.month, 
-        now.day, 
-        now.hour, 
-        now.minute, 
-        now.second)
+        now.year, now.month, now.day, 
+        now.hour, now.minute, now.second)
     with open('./model/info.txt', 'w') as out_file:
         out_file.write(current_time)
         out_file.write(args.info)
@@ -187,7 +186,7 @@ if __name__ == '__main__':
                                       loss, 
                                       sum(all_loss)/len(all_loss)))
                         if sum(all_loss)/len(all_loss) < best:
-                            saver.save(sess, best_point)
+                            # saver.save(sess, best_point)
                             best = sum(all_loss)/len(all_loss)
                             print('Best Model at epoch {}, Loss {:>6.3f}'.format(epoch_i, best))
             
@@ -195,6 +194,30 @@ if __name__ == '__main__':
             saver.save(sess, checkpoint)
             print('Model Trained and Saved\n')
 
+        '''
+        # hyperopt
+        def objective(args):
+            opt_epochs = args["epochs"]
+            # opt_batch_size = args["batch_size"]
+            opt_rnn_size = args["rnn_size"]
+            opt_num_layers = args["num_layers"]
+
+            return -acc
+
+        space = {"epochs":hp.choice("epochs",range(100,151,10)),
+                 # "batch_size":hp.choice("batch_size",range(1,20)),
+                 "rnn_size":hp.choice("rnn_size",range(16,65,16)),
+                 "num_layers":hp.choice("num_layers",range(1,5))
+                 }
+        algo = partial(tpe.suggest,n_startup_jobs=10)
+        trials = Trials()
+        best = fmin( fn=objective,
+                     space=space,
+                     algo=algo,
+                     max_evals=50,
+                     trials=trials)
+        print(best)
+        '''
 
 
     # Testing
@@ -225,14 +248,16 @@ if __name__ == '__main__':
         keep_rate = loaded_graph.get_tensor_by_name('keep_rate:0')
         logits = loaded_graph.get_tensor_by_name('inference_result:0')
         
-        print('Start')
+        print('Start Session Run')
+        start_time = time.time()
         for i in range(length):
             indata = infer_data[i:i+args.in_frames, :]
-            answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)), keep_rate: 1.0 })[0,0]
-            # answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (30,1,1)), keep_rate: 1.0 })[0,0]
+            answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (1,1,1)), keep_rate: 1.0 })[0,0] # first output, first batch
+            # answer_logits[i] = sess.run(logits, { input_data: np.tile(indata, (15,1,1)), keep_rate: 1.0 })[0,0]
+        print('time: {:6.2f}(s)'.format(time.time() - start_time))
 
     a_logits = oblique_mean(answer_logits)
-    ls = np.arange(a_logits.shape[0])
+    ls = np.arange(a_logits.shape[0]) + (args.in_frames - args.out_band) // 2
     plt.scatter(ls, a_logits, color='orange')
     plt.plot(ls, a_logits, color='orange')
     np.save(result, a_logits)
@@ -244,6 +269,5 @@ if __name__ == '__main__':
 
     plt.xlabel('Frame')
     plt.ylabel('Probability of Changing Point Frame')
-    # plt.xlim([30, 70])
     plt.ylim([-0.1, 1.1])
     plt.show()

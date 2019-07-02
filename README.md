@@ -50,7 +50,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 ## Result
 
 <details>
-<summary>First 2019-05-27</summary>
+<summary>~~First 2019-05-27~~</summary>
 
 ### Argument 2019-05-27
  - Epochs: 100
@@ -73,7 +73,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>Add Sigmoid + Lower learning rate 2019-06-04</summary>
+<summary>~~Add Sigmoid + Lower learning rate 2019-06-04~~</summary>
 
 ### Argument 2019-06-04
  - Epochs: 100
@@ -97,7 +97,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>Add decay + Add weighted + Output 10 mid 2019-06-21</summary>
+<summary>Add **decay** + Add **weighted** + Output **10** 2019-06-21</summary>
 
 ### Argument 2019-06-21
  - Epochs: 50
@@ -120,7 +120,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>Add decay + Add weighted + Output 1 mid 2019-06-24</summary>
+<summary>Add **decay** + Add **weighted** + Output **1** 2019-06-24</summary>
 
 ### Argument 2019-06-24
  - Epochs: 50
@@ -143,7 +143,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
 
 
 <details>
-<summary>Add Batch normalize + Add Dropout 2019-06-25 (slow & bad)</summary>
+<summary>Add **Batch normalize** + Add **Dropout** 2019-06-25 (slow & bad)</summary>
 
 ### Argument 2019-06-25
  - Epochs: 50
@@ -156,6 +156,7 @@ We do not directly use the target as ground truth, we weight the target with [Di
  - **Weight: 20:1**
  - **Batch normalize**
  - **Dropout: keep_rate = 0.9 (while training)**
+
 Very slow (30M -> 2HR)
 Loss dicrease faster at the early stage (2HR)
 
@@ -170,7 +171,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>Only add Dropout 2019-06-25_2</summary>
+<summary>Only add **Dropout** 2019-06-25_2</summary>
 
 ### Argument 2019-06-25_2
  - Epochs: 50
@@ -195,7 +196,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>New Kernel 2019-06-30</summary>
+<summary>New **Fine tune** (replace 3 Gaussian Kernel by 1) 2019-06-30</summary>
 
 ### Argument 2019-06-30
  - Epochs: 50
@@ -220,7 +221,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>New Kernel + 30 Batch size 2019-06-30_2 (squat) (Bad)</summary>
+<summary>New **Fine tune** + **30 Batch size** 2019-06-30_2 (**squat**) (Bad)</summary>
 
 ### Argument 2019-06-30_2
  - Epochs: 50
@@ -237,7 +238,7 @@ Loss dicrease faster at the early stage (2HR)
 
 ### Validation result 
 <p align="center">
-    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_squat/all.png" alt="new_kernal_30_all">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/all.png" alt="new_kernal_30_all">
 </p>
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-06-30_2/part.png" alt="new_kernal_30_part">
@@ -246,7 +247,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>New Kernel 2019-06-30_squat</summary>
+<summary>New Kernel (**squat**) 2019-06-30_squat</summary>
 
 ### Argument 2019-06-30_squat
  - Epochs: 50
@@ -269,7 +270,7 @@ Loss dicrease faster at the early stage (2HR)
 
 
 <details>
-<summary>New Kernel + 100 Epoch 2019-06-30_squat</summary>
+<summary>New Kernel + 100 Epoch 2019-06-30_squat (BEST)</summary>
 
 ### Argument 2019-06-30_squat_100
  - Epochs: **100**
@@ -310,6 +311,32 @@ Loss dicrease faster at the early stage (2HR)
 ### Validation result 
 <p align="center">
     <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01/all.png" alt="old_kernal_all">
+</p>
+</details>
+
+
+<details>
+<summary>New Kernel + 100 Epoch + New Inference 2019-07-01_2_3 (2nd best)</summary>
+
+### Argument 2019-07-01_2_3
+ - Epochs: 100
+ - Batch size: 15
+ - Learning rate: 0.0001 (decay half at 60% & 80%)
+ - RNN size: 50
+ - RNN layers: 4
+ - Input size: 20 frames
+ - Output size: 10 frames
+ - Weight: 20:1
+ - Dropout: keep_rate = 0.9 (while training)
+ - Cancel the 3 different Gaussian Kernel
+ - Change validation data to *Squat*
+
+### Validation result 
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_2/all.png" alt="Best_all2">
+</p>
+<p align="center">
+    <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-01_3/all.png" alt="Best_all3">
 </p>
 </details>
 

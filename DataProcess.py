@@ -58,7 +58,6 @@ class DataProcess(object):
             for i,frame in enumerate(frames_list):
                 with open(frame) as json_file:
                     data = json.load(json_file)
-                    #np.array(data['people'][0]['pose_keypoints']).reshape(-1,3)
                     frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints']))
             source_data[activity_name] = np.copy(frame_data)
             print('  sample {}: {}'.format(activity_name, source_data[activity_name].shape))
@@ -70,8 +69,8 @@ class DataProcess(object):
             loaded = np.load(label_list)
             lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
             # ns = [2, 1, 0.25] # less accurate -> more accurate
-            ns = [2, 1, 0.5] # less accurate -> more accurate
-            # ns = [2, 2, 2] # less accurate -> more accurate
+            # ns = [2, 1, 0.5] # less accurate -> more accurate
+            ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
                 lf[s] = utils.gaussian_weighted(loaded, ns[s])

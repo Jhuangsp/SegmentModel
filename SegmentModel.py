@@ -49,7 +49,9 @@ class Seq2Seq(object):
         self.out_length = out_length
         self.rnn_size = rnn_size
         self.num_layers = num_layers
-        self.batch_size = batch_size
+        # self.batch_size = batch_size
+        batch_size_tmp = tf.shape(self.input_data)[0]
+        self.batch_size = batch_size_tmp
 
         self.input_size = input_size
         self.decoder_steps = decoder_steps
@@ -64,8 +66,8 @@ class Seq2Seq(object):
                     - decoder_input: target start with START_TOKEN without LAST_TOKEN
             '''
             # START_TOKEN = np.full((batch_size, 1, output_len), 0.5)
-            data_without_end = tf.strided_slice(data, begin=[0, 0], end=[batch_size, -1], strides=[1, 1])
-            decoder_input = tf.concat([tf.fill([batch_size, 1, self.out_length], 0.5), data_without_end], axis=1)
+            data_without_end = tf.strided_slice(data, begin=[0, 0], end=[batch_size, -1], strides=[1, 1]) #TODO?
+            decoder_input = tf.concat([tf.fill([batch_size, 1, self.out_length], 0.5), data_without_end], axis=1) #TODO?
             return decoder_input
 
 
@@ -74,6 +76,8 @@ class Seq2Seq(object):
                                     self.input_size)
 
         # Preprocess the target data
+        # batch_size_tmp = tf.shape(self.targets)[0]
+        # self.decoder_input = process_decoder_input(self.targets, batch_size_tmp)
         self.decoder_input = process_decoder_input(self.targets, self.batch_size)
 
         self.decoder = self.Decoder(self.encoder.encoder_state,
@@ -144,7 +148,9 @@ class Seq2Seq(object):
             self.encoder_embed_input = tf.reshape(X, [-1, self.seq_length, self.rnn_size])
 
             # Encoder RNN
-            sequence_length = tf.fill([self.batch_size], self.seq_length)
+            # batch_size_tmp = tf.shape(self.encoder_embed_input)[0]
+            # sequence_length = tf.fill([batch_size_tmp], self.seq_length) # TODO
+            sequence_length = tf.fill([self.batch_size], self.seq_length) # TODO
             encoder_output, encoder_state = tf.nn.dynamic_rnn(self.cells, self.encoder_embed_input, 
                                                               sequence_length=sequence_length, dtype=tf.float32)
             
@@ -253,7 +259,7 @@ class Seq2Seq(object):
                 # step = 1
                 PREDICT_STEP = 1
                 # Create start_tokens for each batches [batch_size, steps, output_len]
-                self.start_tokens = tf.fill([self.batch_size, PREDICT_STEP, self.out_length], 0.5, name='start_tokens')
+                self.start_tokens = tf.fill([self.batch_size, 1, self.out_length], 0.5, name='start_tokens')
                 train_length = tf.fill([self.batch_size], PREDICT_STEP)
                 
                 # STEP 1
