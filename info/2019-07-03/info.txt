@@ -1,0 +1,2 @@
+2019_07_03_173425
+newdata+100e+newfinetuneModel: rnn

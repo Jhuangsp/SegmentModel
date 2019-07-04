@@ -331,6 +331,58 @@ Validation result
     </p>
 </details>
 
+---------------------------------------------------------------------------
+
+Correct the coord rotation, but it did'nt do better.
+<details>
+    <summary>New correct the coord. 2019-07-03 (2nd best)</summary>
+    Argument 2019-07-03
+
+         - Epochs: 100
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - RNN size: 50
+         - RNN layers: 4
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 20:1
+         - Dropout: keep_rate = 0.9 (while training)
+         - Cancel the 3 different Gaussian Kernel
+         - Change validation data to *Squat*
+Validation result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-03/all.png" alt="rotate_all2">
+    </p>
+</details>
+
+---------------------------------------------------------------------------
+
+Try CNN model.
+<details>
+    <summary>Test ResnetV1. 2019-07-04 </summary>
+    Argument 2019-07-04
+
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at 60% & 80%)
+         - Res_block : V1 [3,3] [3,3]
+         - Num of Res_blocks in 1 layer: 5
+         - Structure: conv + 5*Res_blocks + DownSampleBy2 + 5*Res_blocks + avg_pool + FC
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: 1:1
+         - Use 1 Gaussian Kernel
+Training result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-04/all_t.png" alt="cnn_t_all">
+    </p>
+Validation result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-04/all_v.png" alt="cnn_v_all">
+    </p>
+</details>
+
+
 ## Progress 2019-07-02
  - Good for model
     - Add decay

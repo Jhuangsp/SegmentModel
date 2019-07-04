@@ -29,7 +29,8 @@ def normalize(step_input):
     normalized = normalized - normalized[1,:]
     unit = np.linalg.norm(normalized[0])
     normalized = normalized/unit
-    return normalized.reshape(-1)
+    return normalized
+    # return normalized.reshape(-1)
 
 
 def discrete_gaussian_kernel(t, n):
@@ -82,3 +83,24 @@ def oblique_mean(data):
         ans[i:i+cols] += data[i,:]
         divider[i:i+cols] += tmp
     return (ans/divider)
+
+
+
+def draw(args, result, gt):
+    result_name = "./model/result.npy"
+    gt_name = "./model/gt.npy"
+
+    ls = np.arange(result.shape[0]) + (args.in_frames - args.out_band) // 2
+    plt.scatter(ls, result, color='orange')
+    plt.plot(ls, result, color='orange')
+    np.save(result_name, result)
+
+    ls = np.arange(len(gt))
+    plt.scatter(ls, gt)
+    plt.plot(ls, gt)
+    np.save(gt_name, gt)
+
+    plt.xlabel('Frame')
+    plt.ylabel('Probability of Changing Point Frame')
+    plt.ylim([-0.1, 1.1])
+    plt.show()

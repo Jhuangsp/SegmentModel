@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class DataProcess(object):
     """docstring for DataProcess"""
-    def __init__(self, path, batch_size, input_size, decoder_steps):
+    def __init__(self, path, batch_size, num_joint, coord_dim, decoder_steps):
         super(DataProcess, self).__init__()
 
         self.source_path = {} # {'activity_name':['frame1_path', 'frame2_path', ..., 'frameEND_path'], 'activity2_name':[...], ...}
@@ -32,7 +32,9 @@ class DataProcess(object):
         pp.pprint(self.target_path)
 
         self.batch_size = batch_size
-        self.input_size = input_size
+        self.num_joint = num_joint
+        self.coord_dim = coord_dim
+        self.input_size = self.num_joint * self.coord_dim
         self.decoder_steps = decoder_steps
 
         # Loading data
@@ -54,7 +56,8 @@ class DataProcess(object):
         source_data = {}
         print('Source data shape (samples, max_data_steps, input_size):') 
         for activity_name, frames_list in self.source_path.items():
-            frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32)
+            # frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32)
+            frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32)
             for i,frame in enumerate(frames_list):
                 with open(frame) as json_file:
                     data = json.load(json_file)
@@ -74,6 +77,7 @@ class DataProcess(object):
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
                 lf[s] = utils.gaussian_weighted(loaded, ns[s])
+                # lf[s] = loaded
             target_data[activity_name] = np.copy(lf)
             print('  sample {}: {}'.format(activity_name, target_data[activity_name].shape))
         print('\n')
@@ -116,36 +120,13 @@ class DataProcess(object):
 
         return train_set, valid_set
 
-    def Batch_Generator_legacy(self, source_split, target_split, input_seq_length, out_band_length):
-        '''
-        Define generator to generate batch
-        Random pick sample and start point
-        
-        Return:
-        - batch
-        '''
-        samples = len(source_split)
-        start_range = self.max_len - input_seq_length
-
-        num_batch = (samples*start_range)//(input_seq_length*self.batch_size)
-
-        print(' - Total Batches: {:2d} | Videos: {:2d} | Input Length: {:2d}'.format(num_batch, samples, input_seq_length))
-        print(' - Batche Shape: ({0:}, {1:}, {2:}) (source) | ({0:}, {3:}, {1:}) (target)\n'.format(
-                                                self.batch_size, input_seq_length, self.input_size, self.decoder_steps))
-
-        for batch_i in range(num_batch):
-            # random choose sample
-            sample_i = np.random.randint(samples, size=self.batch_size)
-            # start point
-            start_i = np.random.randint(start_range, size=self.batch_size)
-
-            # cut batch [r[i][st:st+2] for (i,st) in enumerate(start)]
-            random_targets = [target_split[s] for s in sample_i]
-            random_sources = [source_split[s] for s in sample_i]
-            targets_batch = [random_targets[i][:,st:st+input_seq_length] for (i,st) in enumerate(start_i)]
-            sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
-            
-            yield np.array(sources_batch), np.array(targets_batch), num_batch
+    def Get_num_batch(self, source_split, input_seq_length):
+        pool = []
+        for activity,data in source_split.items():
+            for start_i in range(data.shape[0]-input_seq_length):
+                pool.append((activity, start_i))
+        num_batch = len(pool) // self.batch_size
+        return num_batch
 
     def Batch_Generator(self, source_split, target_split, input_seq_length, out_band_length, training=True):
         '''
@@ -179,7 +160,46 @@ class DataProcess(object):
             random_targets = [target_split[s] for s in sample_i]
             random_sources = [source_split[s] for s in sample_i]
             targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
-            sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
+            sources_batch = [random_sources[i][st:st+input_seq_length].reshape(input_seq_length, -1) for (i,st) in enumerate(start_i)]
+            # targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
+            # sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
             
             yield np.array(sources_batch), np.array(targets_batch), num_batch
+
+    def Batch_Generator_Resnet(self, source_split, target_split, input_seq_length, out_band_length, training=True):
+        '''
+        Define generator to generate batch
+        Random pick sample and start point
+        
+        Return:
+        - batch
+        '''
+        samples = len(source_split)
+        pool = []
+        for activity,data in source_split.items():
+            for start_i in range(data.shape[0]-input_seq_length):
+                pool.append((activity, start_i))
+        num_batch = len(pool) // self.batch_size
+
+        OutOfBand_size = (input_seq_length - out_band_length) // 2
+
+        if training:
+            random.shuffle(pool)
+            print(' - Total Batches: {:2d} | Videos: {:2d} | Input Length: {:2d}'.format(num_batch, samples, input_seq_length))
+            print(' - Batche Shape: ({0:}, {1:}, {2:}, {3:}) (source) | ({0:}, {4:}) (target)\n'.format(
+                                                    self.batch_size, input_seq_length, self.num_joint, self.coord_dim, out_band_length))
+
+        for batch_i in range(num_batch):
+            pick = pool[batch_i*self.batch_size:(batch_i+1)*self.batch_size]
+            # random choose sample & start point
+            sample_i, start_i = zip(*pick)
+
+            # cut batch [r[i][st:st+2] for (i,st) in enumerate(start)]
+            random_targets = [target_split[s] for s in sample_i]
+            random_sources = [source_split[s] for s in sample_i]
+            targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
+            sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
+            
+            # print(np.array(sources_batch).shape, np.array(targets_batch)[:,2,:].shape)
+            yield np.array(sources_batch), np.array(targets_batch)[:,2,:], num_batch
 
