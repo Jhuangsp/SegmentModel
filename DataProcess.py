@@ -71,9 +71,9 @@ class DataProcess(object):
         for activity_name, label_list in self.target_path.items():
             loaded = np.load(label_list)
             lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
-            ns = [2, 1, 0.25] # less accurate -> more accurate
+            # ns = [2, 1, 0.25] # less accurate -> more accurate
             # ns = [2, 1, 0.5] # less accurate -> more accurate
-            # ns = [2, 2, 2] # less accurate -> more accurate
+            ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
                 lf[s] = utils.gaussian_weighted(loaded, ns[s])
@@ -200,9 +200,9 @@ class DataProcess(object):
             sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
             targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
 
-            if random.randint(False, True):
-                sources_batch = np.flip(sources_batch, axis=1)
-                targets_batch = np.flip(targets_batch, axis=2)
+            # if random.randint(False, True):
+            #     sources_batch = np.flip(sources_batch, axis=1)
+            #     targets_batch = np.flip(targets_batch, axis=2)
             
             # print(np.array(sources_batch).shape, np.array(targets_batch)[:,2,:].shape)
             yield np.array(sources_batch), np.array(targets_batch)[:,2,:], num_batch
