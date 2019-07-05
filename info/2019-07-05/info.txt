@@ -1,0 +1,2 @@
+2019_07_05_122414
+testhigherkernelModel: cnn
