@@ -27,56 +27,80 @@ class ResNet(object):
                 [3,3]
                 [3,3]
         '''
-        # input_channel = int(x.shape[-1]) # get # of input channels
-
-        if downsampling:
-            stride = 2
-        else:
-            stride = 1
+        stride = 2 if downsampling else 1
 
         with tf.variable_scope(name):
             with tf.variable_scope('conv1_in_block'):
-                h1 = tf.layers.conv2d(x, o_channel, kernel_size=[3,3], strides=stride, padding='SAME')
-                h1 = tf.layers.batch_normalization(h1)
-                h1 = tf.nn.relu(h1)
+                h = tf.layers.conv2d(x, o_channel, kernel_size=[3,3], strides=stride, padding='SAME')
+                h = tf.layers.batch_normalization(h)
+                h = tf.nn.elu(h)
             
             with tf.variable_scope('conv2_in_block'):
-                h2 = tf.layers.conv2d(h1, o_channel, kernel_size=[3,3], strides=1, padding='SAME')
-                h2 = tf.layers.batch_normalization(h2)
+                h = tf.layers.conv2d(h, o_channel, kernel_size=[3,3], strides=1, padding='SAME')
+                h = tf.layers.batch_normalization(h)
 
             if downsampling:
                 x = tf.layers.conv2d(x, o_channel, kernel_size=[1,1], strides=stride, padding='SAME')
 
-            return tf.nn.relu(h2 + x)
+            return tf.nn.elu(h + x)
+
+    def residual_block_v2(self, x, o_channel, downsampling=False, name='res_block'):
+        '''
+            residual_block_v2
+            kernel size:
+                [1,1] out=64
+                [3,3] out=64
+                [1,1] out=256
+
+                [1,1] out=128
+                [3,3] out=128
+                [1,1] out=512
+        '''
+        stride = 2 if downsampling else 1
+
+        with tf.variable_scope(name):
+            with tf.variable_scope('conv1_in_block'):
+                h = tf.layers.conv2d(x, o_channel//4, kernel_size=[1,1], strides=stride, padding='SAME')
+                h = tf.layers.batch_normalization(h)
+                h = tf.nn.elu(h)
+            
+            with tf.variable_scope('conv2_in_block'):
+                h = tf.layers.conv2d(h, o_channel//4, kernel_size=[3,3], strides=1, padding='SAME')
+                h = tf.layers.batch_normalization(h)
+                h = tf.nn.elu(h)
+            
+            with tf.variable_scope('conv3_in_block'):
+                h = tf.layers.conv2d(h, o_channel, kernel_size=[1,1], strides=1, padding='SAME')
+                h = tf.layers.batch_normalization(h)
+
+            if downsampling:
+                x = tf.layers.conv2d(x, o_channel, kernel_size=[1,1], strides=stride, padding='SAME')
+
+            return tf.nn.elu(h + x)
 
     def build_net(self, x_img, layer_n):
         x = x_img
         o_frames = x_img.shape[1] // 2
         ori_shape = x_img.shape[1:-1]
 
+        residual_block = self.residual_block if False else self.residual_block_v2
+
         with tf.variable_scope("conv0"): # init conv layer
-            x = tf.layers.conv2d(x, filters=16, kernel_size=[3,3], strides=1, padding='SAME')
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
+            x = tf.layers.conv2d(x, filters=32, kernel_size=[3,3], strides=1, padding='SAME', activation=tf.nn.elu)
+            x = tf.layers.max_pooling2d(x, pool_size=3, strides=1, padding='SAME')
 
         with tf.variable_scope("conv1"):
             for i in range(layer_n):
-                x = self.residual_block(x, o_channel=16, name="resblock{}".format(i+1))
+                x = residual_block(x, o_channel=256, name="resblock{}".format(i+1))
                 assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1])).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
 
         with tf.variable_scope("conv2"):
             for i in range(layer_n):
-                x = self.residual_block(x, o_channel=32, downsampling=(i==0), name="resblock{}".format(i+1))
+                x = residual_block(x, o_channel=512, downsampling=(i==0), name="resblock{}".format(i+1))
                 assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1]) // 2).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
-
-        # with tf.variable_scope("conv3"):
-        #     for i in range(layer_n):
-        #         x = self.residual_block(x, o_channel=64, downsampling=(i==0), name="resblock{}".format(i+1))
-        #         assert x.shape[1:-1] == ori_shape // 4
 
         with tf.variable_scope("fc"):
             x = tf.reduce_mean(x, axis=[1,2]) # global average pooling
-            assert x.shape[1:] == [32], '{}'.format(x.shape)
 
             logits = tf.sigmoid(tf.layers.dense(x, o_frames, name="logits"))
 
