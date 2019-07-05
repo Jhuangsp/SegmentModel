@@ -1,0 +1,4 @@
+-e
+50
+--info
+testhigherkernel

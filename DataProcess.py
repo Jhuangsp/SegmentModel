@@ -71,9 +71,9 @@ class DataProcess(object):
         for activity_name, label_list in self.target_path.items():
             loaded = np.load(label_list)
             lf = np.zeros((self.decoder_steps, loaded.shape[0]), dtype=np.float32)
-            # ns = [2, 1, 0.25] # less accurate -> more accurate
+            ns = [2, 1, 0.25] # less accurate -> more accurate
             # ns = [2, 1, 0.5] # less accurate -> more accurate
-            ns = [2, 2, 2] # less accurate -> more accurate
+            # ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
                 lf[s] = utils.gaussian_weighted(loaded, ns[s])
