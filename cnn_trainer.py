@@ -70,10 +70,10 @@ def cnn_graph(args, num_total_steps):
 
         with tf.name_scope("optimization"):
             # Loss function
-            # penalty = tf.cast(targets > 0, dtype=tf.float32) * 20 + 1
-            # cost = tf.reduce_mean(tf.square(penalty * tf.subtract(training_logits, targets)))
+            penalty = tf.cast(targets > 0, dtype=tf.float32) * 20 + 1
+            cost = tf.reduce_mean(tf.square(penalty * tf.subtract(training_logits, targets)))
 
-            cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
+            # cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
 
             # Optimizer
             global_step = tf.Variable(0, trainable=False)
