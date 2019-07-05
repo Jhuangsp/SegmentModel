@@ -59,6 +59,7 @@ class ResNet(object):
         stride = 2 if downsampling else 1
 
         with tf.variable_scope(name):
+
             with tf.variable_scope('conv1_in_block'):
                 h = tf.layers.conv2d(x, o_channel//4, kernel_size=[1,1], strides=stride, padding='SAME')
                 h = tf.layers.batch_normalization(h)
@@ -76,7 +77,13 @@ class ResNet(object):
             if downsampling:
                 x = tf.layers.conv2d(x, o_channel, kernel_size=[1,1], strides=stride, padding='SAME')
 
-            return tf.nn.elu(h + x)
+            do_proj = tf.shape(x)[3] != o_channel
+            if do_proj:
+                x = tf.layers.conv2d(x, filters=o_channel, kernel_size=[1,1], strides=1, padding='SAME', activation=None)
+                return tf.nn.elu(h + x)
+            else:
+                return tf.nn.elu(h + x)
+
 
     def build_net(self, x_img, layer_n):
         x = x_img
