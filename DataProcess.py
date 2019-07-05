@@ -195,10 +195,14 @@ class DataProcess(object):
             sample_i, start_i = zip(*pick)
 
             # cut batch [r[i][st:st+2] for (i,st) in enumerate(start)]
-            random_targets = [target_split[s] for s in sample_i]
             random_sources = [source_split[s] for s in sample_i]
-            targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
+            random_targets = [target_split[s] for s in sample_i]
             sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
+            targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
+
+            if random.randint(False, True):
+                sources_batch = np.flip(sources_batch, axis=1)
+                targets_batch = np.flip(targets_batch, axis=2)
             
             # print(np.array(sources_batch).shape, np.array(targets_batch)[:,2,:].shape)
             yield np.array(sources_batch), np.array(targets_batch)[:,2,:], num_batch
