@@ -20,10 +20,10 @@ from utils import oblique_mean, draw
 
 def test_cnn(args, DataLoader):
     print('==> Start Testing...\n')
-    infer_data = DataLoader.train_set['source']
-    infer_targ = DataLoader.train_set['target']
-    # infer_data = DataLoader.valid_set['source']
-    # infer_targ = DataLoader.valid_set['target']
+    # infer_data = DataLoader.train_set['source']
+    # infer_targ = DataLoader.train_set['target']
+    infer_data = DataLoader.valid_set['source']
+    infer_targ = DataLoader.valid_set['target']
 
     (activity, infer_data) = list(infer_data.items())[0]
     (activity, infer_targ) = list(infer_targ.items())[0]
