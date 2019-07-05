@@ -73,6 +73,30 @@ def gaussian_weighted(data_list, n):
     # plt.show()
     return weighted_data_list
 
+def gaussian_like_weighted(data_list):
+    '''
+    Apply different size gaussian mask to impulse frame according to 
+    different output steps.
+    Parameter:
+     - target_label: all steps of output label (shape: decoder_steps, output length)
+    Return:
+     - different size gaussian weighted target_label
+    '''    
+    ns = np.arange(11)-5
+    w = discrete_gaussian_kernel(2, ns)*3
+    weighted_data_list = np.convolve(data_list, w, 'same')
+
+    # ls = np.arange(len(weighted_data_list))
+    # plt.scatter(ls, weighted_data_list)
+    # plt.plot(ls, weighted_data_list)
+
+    # plt.xlabel('Frame')
+    # plt.ylabel('Probability of Changing Point Frame')
+    # plt.xlim([30, 70])
+    # plt.ylim([-0.1, 1.1])
+    # plt.show()
+    return weighted_data_list
+
 
 def oblique_mean(data):
     rows, cols = data.shape

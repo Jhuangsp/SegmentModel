@@ -76,7 +76,8 @@ class DataProcess(object):
             ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
-                lf[s] = utils.gaussian_weighted(loaded, ns[s])
+                lf[s] = utils.gaussian_like_weighted(loaded)
+                # lf[s] = utils.gaussian_weighted(loaded, ns[s])
                 # lf[s] = loaded
             target_data[activity_name] = np.copy(lf)
             print('  sample {}: {}'.format(activity_name, target_data[activity_name].shape))
