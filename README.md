@@ -474,6 +474,10 @@ Second Derivative Result
     - Batch size (hyperopt)
     - too large Weighting scale
 
+## Progress 2019-07-02
+ - Try Resnet
+ - Try UD method
+
 ## TODO
  - 3 Method output
     - Probability: strengthen the non-zero field penalty (done)
@@ -481,8 +485,8 @@ Second Derivative Result
     - ~~Time error~~
  - ~~Try DTW Discrete Time Warping/Dynamic Time Warping and hidden markov model (by Rabiner)~~
  - ~~Data preprocess~~
- - **Peak finding**
- - **Proper evaluation method**
+ - Peak finding (done)
+ - Proper evaluation method: peak detect + DTW (done)
  - Auto hyperparameter finding
  - Code review with handsomeguy
 
