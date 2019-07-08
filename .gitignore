@@ -3,3 +3,5 @@ data/*
 test/*
 imagemaker.pptx
 model/*
+utils/__pycache__/*
+utils/peakdetect/__pycache__/*
