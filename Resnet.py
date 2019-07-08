@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 class ResNet(object):
-    def __init__(self, name='resnet', layer_n=3):
+    def __init__(self, name='resnet', layer_n=3, in_shape=[20, 18, 2], out_shape=[10]):
         super(ResNet, self).__init__()
 
         def preproc(x):
@@ -13,8 +13,8 @@ class ResNet(object):
             return x - mean
 
         with tf.variable_scope(name):
-            self.X = tf.placeholder(tf.float32, [None, 20, 18, 2], name='X') # [batch, height, width, channel]
-            self.y = tf.placeholder(tf.float32, [None, 10], name='y') # [batch, width(frames)]
+            self.X = tf.placeholder(tf.float32, [None, in_shape[0], in_shape[1], in_shape[2]], name='X') # [batch, height, width, channel]
+            self.y = tf.placeholder(tf.float32, [None, out_shape[0]], name='y') # [batch, width(frames)]
             # self.training = tf.placeholder(tf.bool, name='training')
 
             x = preproc(self.X)

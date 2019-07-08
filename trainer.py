@@ -11,8 +11,11 @@ import tensorflow as tf
 import numpy as np
 import argparse
 import time
+import os
 
 import DataProcess
+from utils.dynamic_time_warpping.dtw import dtw
+from scipy.signal import find_peaks
 
 def train_loop(args, train_graph, DataLoader, num_batch, useful):
     print('==> Start Training...\n')
@@ -26,11 +29,12 @@ def train_loop(args, train_graph, DataLoader, num_batch, useful):
 
         train_op   = useful['train_op']
         cost       = useful['cost']
-        # add_global = useful['add_global']
         input_data = useful['input_data']
         targets    = useful['targets']
+        training_logits = useful['training_logits'],
         keep_rate  = useful['keep_rate']
         optimizer  = useful['optimizer']
+        show = useful['show']
 
         # Init weight
         sess.run(tf.global_variables_initializer())
@@ -47,7 +51,6 @@ def train_loop(args, train_graph, DataLoader, num_batch, useful):
             # Get training batch
             for batch_i, (sources_batch, targets_batch, num_batch) in enumerate(train_batch_generator):
 
-                # _, loss, _ = sess.run( [train_op, cost, add_global],
                 _, loss = sess.run( [train_op, cost],
                     {input_data: sources_batch,
                      targets: targets_batch,
@@ -60,27 +63,47 @@ def train_loop(args, train_graph, DataLoader, num_batch, useful):
                     else:
                         valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band, training=False)
                     all_loss = []
+                    dtws = []
                     for (valid_sources_batch, valid_targets_batch, _) in valid_batch_generator:
 
                         # Calculate validation loss
-                        validation_loss, LR = sess.run( [cost, optimizer._lr],
+                        validation_loss, LR, r1, r2 = sess.run( [cost, optimizer._lr, targets, training_logits],
                             {input_data: valid_sources_batch,
                              targets: valid_targets_batch,
                              keep_rate: 0.9})
                         all_loss.append(validation_loss)
+
+                        # peak detect
+                        euclidean_norm = lambda x, y: np.abs(x - y)
+                        for i in range(args.batch_size):
+                            gtpeaks, _ = find_peaks(r1[i], height=0)
+                            rtpeaks, _ = find_peaks(r2[0][i], height=0)
+                            if rtpeaks.size == 0 or gtpeaks.size == 0:
+                                rtpeaks = np.insert(rtpeaks, 0, 0)
+                                gtpeaks = np.insert(gtpeaks, 0, 0)
+
+                            # DTW
+                            d, cost_matrix, acc_cost_matrix, path = dtw(gtpeaks, rtpeaks, dist=euclidean_norm)
+                            # d, cost_matrix, acc_cost_matrix, path = dtw(r1[i], r2[0][i], dist=euclidean_norm)
+                            dtws.append(d)
                     
-                    print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Train Loss: {:>6.3f} | Valid loss: {:>6.3f}'
+                    print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Train Loss: {:>6.3f} | Valid loss: {:>6.3f}, dtw: {:>6.3f}'
                           .format(epoch_i,
                                   args.epochs, 
                                   batch_i, 
                                   num_batch, 
                                   LR, 
                                   loss, 
-                                  sum(all_loss)/len(all_loss)))
-                    if sum(all_loss)/len(all_loss) < best:
+                                  sum(all_loss)/len(all_loss),
+                                  sum(dtws)/len(dtws)))
+                    # if sum(all_loss)/len(all_loss) < best:
+                    #     # saver.save(sess, best_point)
+                    #     best = sum(all_loss)/len(all_loss)
+                    #     print('Best Model at epoch {}, Loss {:>6.3f}'.format(epoch_i, best))
+                    if sum(dtws)/len(dtws) < best:
                         saver.save(sess, best_point)
-                        best = sum(all_loss)/len(all_loss)
-                        print('Best Model at epoch {}, Loss {:>6.3f}'.format(epoch_i, best))
+                        best = sum(dtws)/len(dtws)
+                        print('Best Model at epoch {}, dtw {:>6.3f}'.format(epoch_i, best))
         
         # Save model
         saver.save(sess, checkpoint)

@@ -15,7 +15,7 @@ import time
 import SegmentModel
 import DataProcess
 import trainer
-from utils import oblique_mean, draw
+from utils.utils import oblique_mean, draw
 
 def test_rnn(args, DataLoader):
     print('==> Start Testing...\n')

@@ -15,7 +15,7 @@ import time
 import Resnet
 import DataProcess
 import trainer
-from utils import oblique_mean, draw
+from utils.utils import oblique_mean, draw
 
 
 def test_cnn(args, DataLoader):
@@ -60,7 +60,7 @@ def cnn_graph(args, num_total_steps):
 
         # Build Resnet Model 
         print('==> Creating Model...\n')
-        Net = Resnet.ResNet(name="resnet", layer_n=5)
+        Net = Resnet.ResNet(name="resnet", layer_n=5, in_shape=[args.in_frames, args.num_joint, args.coord_dim], out_shape=[args.out_band])
         input_data = Net.X
         targets = Net.y
 
@@ -70,15 +70,22 @@ def cnn_graph(args, num_total_steps):
 
         with tf.name_scope("optimization"):
             # Loss function
-            penalty = tf.cast(targets > 0, dtype=tf.float32) * 20 + 1
-            cost = tf.reduce_mean(tf.square(penalty * tf.subtract(training_logits, targets)))
+            valuefull = tf.cast(tf.not_equal(targets, 0), dtype=tf.float32)
+            valueless = tf.cast(tf.equal(targets, 0), dtype=tf.float32)
+            num_valuefull = tf.reduce_sum(valuefull)
+            num_valueless = tf.reduce_sum(valueless)
+            total = num_valuefull + num_valueless
+            penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
+            cost = tf.reduce_sum(penalty * tf.square(tf.subtract(training_logits, targets)))
 
             # cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
 
             # Optimizer
             global_step = tf.Variable(0, trainable=False)
-            boundaries = [np.int32((3/5) * num_total_steps), np.int32((4/5) * num_total_steps)]
-            values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4]
+            # boundaries = [np.int32((3/5) * num_total_steps), np.int32((4/5) * num_total_steps)]
+            # values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4]
+            boundaries = [(num_total_steps*1)//5, (num_total_steps*2)//5, (num_total_steps*3)//5, (num_total_steps*4)//5]
+            values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4, args.learning_rate/8, args.learning_rate/16]
 
             learning_rate = tf.train.piecewise_constant(global_step, boundaries, values)
             optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
@@ -91,9 +98,11 @@ def cnn_graph(args, num_total_steps):
         keep_rate = tf.Variable(0, trainable=False) # useless
 
         useful = { 'train_op':train_op, 
+                   'show':[targets, training_logits, valuefull, valueless, num_valuefull, num_valueless, total],
                    'cost':cost, 
                    'input_data':input_data,
                    'targets':targets,
+                   'training_logits':training_logits,
                    'keep_rate':keep_rate,
                    'optimizer':optimizer}
     return train_graph, useful

@@ -6,7 +6,7 @@ import json
 import random
 import matplotlib.pyplot as plt
 
-import utils
+import utils.utils as utils
 
 pp = pprint.PrettyPrinter(indent=4)
 

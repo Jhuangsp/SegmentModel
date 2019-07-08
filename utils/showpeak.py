@@ -26,7 +26,7 @@ plt.show()
 
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
-peaks, _ = find_peaks(result, height=0)
+peaks, _ = find_peaks(result, height=0.2)
 plt.plot(result)
 plt.plot(peaks, result[peaks], "x")
 plt.plot(np.zeros_like(result), "--", color="gray")

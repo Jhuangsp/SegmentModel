@@ -382,6 +382,84 @@ Validation result
     </p>
 </details>
 
+Try ResnetV2 & DTW evaluate method
+<details>
+    <summary>ResnetV2 2019-07-06</summary>
+    Argument 2019-07-06
+
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at every 20%)
+         - Res_block : **V2 [1,1] [3,3] [1,1]**
+         - Num of Res_blocks in 1 layer: 5
+         - Structure: conv + 5*Res_blocks + DownSampleBy2 + 5*Res_blocks + avg_pool + FC
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: **dynamic (Bobo)**
+         - Use 1 Gaussian like Kernel
+         - **Use DTW to detect Overfitting**
+Validation result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-06_dtw+50E/best.png" alt="cnn_v2_best">
+    </p>
+</details>
+
+Try ResnetV2 & DTW evaluate method & Peak detect
+<details>
+    <summary>ResnetV2 2019-07-08</summary>
+    Argument 2019-07-08
+
+         - Epochs: 50
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at every 20%)
+         - Res_block : **V2 [1,1] [3,3] [1,1]**
+         - Num of Res_blocks in 1 layer: 5
+         - Structure: conv + 5*Res_blocks + DownSampleBy2 + 5*Res_blocks + avg_pool + FC
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: **dynamic (Bobo)**
+         - Use 1 Gaussian like Kernel
+         - **Use Peak detect before DTW**
+         - **Use DTW to detect Overfitting**
+Validation result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_peak+dtw+50E/best_atepoch7.png" alt="cnn_v2_best+peak">
+    </p>
+Validation result + Peak detect
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_peak+dtw+50E/best_peak.png" alt="cnn_v2_peak">
+    </p>
+</details>
+
+---------------------------------------------------------------------------
+
+Try Curve fitting & Undetermined Coefficient Numerical Differentiation
+<details>
+    <summary>Undetermined Coefficient 2019-07-08</summary>
+    Argument 2019-07-08
+
+         - Input: 5 point
+         - Normalize: only shifting
+         - Curve fitting: Fit 5 point on 2-degree polynomial
+         - Undetermined Coefficient Derivation: Fit 5 point on 4-degree polynomial & First Derivative/Second Derivative
+         - Activity: Squat
+         - Point: Nose (y direction)
+First Derivative Result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_UD/first.png" alt="first">
+    </p>
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_UD/first_whole.png" alt="first_whole">
+    </p>
+Second Derivative Result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_UD/second.png" alt="second">
+    </p>
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_UD/second_whole.png" alt="second_whole">
+    </p>
+</details>
+
 
 ## Progress 2019-07-02
  - Good for model
