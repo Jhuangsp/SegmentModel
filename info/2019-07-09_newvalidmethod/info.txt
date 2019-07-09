@@ -1,0 +1,3 @@
+2019_07_09_150523
+peak+DTW+resnetv2+e20+whole_validModel: cnn
+best at epoch8 1.409

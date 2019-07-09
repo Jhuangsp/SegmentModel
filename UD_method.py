@@ -26,30 +26,25 @@ parser.add_argument('-dg', '--degree', type=int, default=1,
 args = parser.parse_args()
 
 if args.degree > 2 or args.degree <= 0:
-    parser.error('-dg/--degree should not > 2 or <= 0')
+    parser.error('-dg/--degree should not > 2 or <= 02 or <= 32 or <= 4')
 
 if __name__ == '__main__':
 
     h = 1.
 
+    A = np.array([[      1,      1,      1,      1,      1],
+                  [   -2*h,     -h,      0,      h,    2*h],
+                  [ 4*h**2,   h**2,      0,   h**2, 4*h**2],
+                  [-8*h**3,  -h**3,      0,   h**3, 8*h**3],
+                  [16*h**4,   h**4,      0,   h**4,16*h**4]])
     if args.degree == 1:
         # First Derivative
-        A = np.array([[      1,      1,      1,      1,      1],
-                      [   -2*h,     -h,      0,      h,    2*h],
-                      [ 4*h**2,   h**2,      0,   h**2, 4*h**2],
-                      [-8*h**3,  -h**3,      0,   h**3, 8*h**3],
-                      [16*h**4,   h**4,      0,   h**4,16*h**4]])
         B = np.array([0, 1, 0, 0, 0])
-        X = np.linalg.solve(A, B)
     else:
         # Second Derivative
-        A = np.array([[      1,      1,      1,      1,      1],
-                      [   -2*h,     -h,      0,      h,    2*h],
-                      [ 4*h**2,   h**2,      0,   h**2, 4*h**2],
-                      [-8*h**3,  -h**3,      0,   h**3, 8*h**3],
-                      [16*h**4,   h**4,      0,   h**4,16*h**4]])
         B = np.array([0, 0, 2, 0, 0])
-        X = np.linalg.solve(A, B)
+        
+    X = np.linalg.solve(A, B)
 
 
     # Loading data
@@ -68,6 +63,11 @@ if __name__ == '__main__':
         mini_data = data[i:i+5]
         # Curve fitting
         # A.T * A * X = A.T * B
+        # CA = np.array([[1, -2, (-2)**2, (-2)**3],
+                       # [1, -1, (-1)**2, (-1)**3],
+                       # [1,  0, ( 0)**2, ( 0)**3],
+                       # [1,  1, ( 1)**2, ( 1)**3],
+                       # [1,  2, ( 2)**2, ( 2)**3]])
         CA = np.array([[1, -2, (-2)**2],
                        [1, -1, (-1)**2],
                        [1,  0, ( 0)**2],
@@ -86,5 +86,5 @@ if __name__ == '__main__':
     plt.plot([0,300], [0,0], color='red')
     plt.xlabel('Frame')
     plt.ylabel('Probability of Changing Point Frame')
-    plt.ylim([-0.05, 0.05])
+    # plt.ylim([-0.05, 0.05])
     plt.show()

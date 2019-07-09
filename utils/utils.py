@@ -28,7 +28,7 @@ def normalize(step_input):
     normalized = step_input[:,:2]
     normalized = normalized - normalized[1,:]
     unit = np.linalg.norm(normalized[0])
-    normalized = normalized/unit
+    # normalized = normalized/unit
     return normalized
     # return normalized.reshape(-1)
 

@@ -12,6 +12,8 @@ class ResNet(object):
             mean = tf.reduce_mean(x, axis=1, keepdims=True)
             return x - mean
 
+        self.out_shape = out_shape
+
         with tf.variable_scope(name):
             self.X = tf.placeholder(tf.float32, [None, in_shape[0], in_shape[1], in_shape[2]], name='X') # [batch, height, width, channel]
             self.y = tf.placeholder(tf.float32, [None, out_shape[0]], name='y') # [batch, width(frames)]
@@ -87,7 +89,7 @@ class ResNet(object):
 
     def build_net(self, x_img, layer_n):
         x = x_img
-        o_frames = x_img.shape[1] // 2
+        # o_frames = x_img.shape[1] // 2
         ori_shape = x_img.shape[1:-1]
 
         residual_block = self.residual_block if False else self.residual_block_v2
@@ -109,6 +111,6 @@ class ResNet(object):
         with tf.variable_scope("fc"):
             x = tf.reduce_mean(x, axis=[1,2]) # global average pooling
 
-            logits = tf.sigmoid(tf.layers.dense(x, o_frames, name="logits"))
+            logits = tf.sigmoid(tf.layers.dense(x, self.out_shape[0], name="logits"))
 
         return logits

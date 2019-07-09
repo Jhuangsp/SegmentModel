@@ -16,6 +16,7 @@ import os
 import DataProcess
 from utils.dynamic_time_warpping.dtw import dtw
 from scipy.signal import find_peaks
+from utils.utils import oblique_mean
 
 def train_loop(args, train_graph, DataLoader, num_batch, useful):
     print('==> Start Training...\n')
@@ -62,6 +63,7 @@ def train_loop(args, train_graph, DataLoader, num_batch, useful):
                         valid_batch_generator = DataLoader.Batch_Generator_Resnet(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band, training=False)
                     else:
                         valid_batch_generator = DataLoader.Batch_Generator(DataLoader.valid_set['source'], DataLoader.valid_set['target'], args.in_frames, args.out_band, training=False)
+                    '''
                     all_loss = []
                     dtws = []
                     for (valid_sources_batch, valid_targets_batch, _) in valid_batch_generator:
@@ -86,23 +88,52 @@ def train_loop(args, train_graph, DataLoader, num_batch, useful):
                             d, cost_matrix, acc_cost_matrix, path = dtw(gtpeaks, rtpeaks, dist=euclidean_norm)
                             # d, cost_matrix, acc_cost_matrix, path = dtw(r1[i], r2[0][i], dist=euclidean_norm)
                             dtws.append(d)
+                    '''
+                    # ------------------- #
+                    infer_data = DataLoader.valid_set['source']
+                    infer_targ = DataLoader.valid_set['target']
+
+                    (activity, infer_data) = list(infer_data.items())[0]
+                    (activity, infer_targ) = list(infer_targ.items())[0]
+                    length = infer_data.shape[0] - (args.in_frames-1)
+
+                    answer_logits = np.zeros((length, args.out_band))
                     
+                    for i in range(length):
+                        indata = infer_data[i:i+args.in_frames, :]
+                        answer_logits[i] = sess.run(training_logits, { input_data: np.array([indata])})[0][0,0] # first output, first batch
+
+                    euclidean_norm = lambda x, y: np.abs(x - y)
+                    a_logits = oblique_mean(answer_logits)
+                    gtpeaks, _ = find_peaks(a_logits, height=0)
+                    rtpeaks, _ = find_peaks(infer_targ.reshape(3,-1)[-1], height=0)
+                    if rtpeaks.size == 0 or gtpeaks.size == 0:
+                        rtpeaks = np.insert(rtpeaks, 0, 0)
+                        gtpeaks = np.insert(gtpeaks, 0, 0)
+                    d, cost_matrix, acc_cost_matrix, path = dtw(gtpeaks, rtpeaks, dist=euclidean_norm)
+                    
+                    # ------------------- #
                     print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Train Loss: {:>6.3f} | Valid loss: {:>6.3f}, dtw: {:>6.3f}'
                           .format(epoch_i,
                                   args.epochs, 
                                   batch_i, 
-                                  num_batch, 
-                                  LR, 
-                                  loss, 
-                                  sum(all_loss)/len(all_loss),
-                                  sum(dtws)/len(dtws)))
+                                  num_batch, 0,
+                                  # LR, 
+                                  loss, 0,
+                                  # sum(all_loss)/len(all_loss),
+                                  d))
+                                  # sum(dtws)/len(dtws)))
                     # if sum(all_loss)/len(all_loss) < best:
                     #     # saver.save(sess, best_point)
                     #     best = sum(all_loss)/len(all_loss)
                     #     print('Best Model at epoch {}, Loss {:>6.3f}'.format(epoch_i, best))
-                    if sum(dtws)/len(dtws) < best:
+                    # if sum(dtws)/len(dtws) < best:
+                    #     saver.save(sess, best_point)
+                    #     best = sum(dtws)/len(dtws)
+                    #     print('Best Model at epoch {}, dtw {:>6.3f}'.format(epoch_i, best))
+                    if d < best:
                         saver.save(sess, best_point)
-                        best = sum(dtws)/len(dtws)
+                        best = d
                         print('Best Model at epoch {}, dtw {:>6.3f}'.format(epoch_i, best))
         
         # Save model
