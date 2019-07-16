@@ -397,7 +397,8 @@ Try ResnetV2 & DTW evaluate method
          - Output size: 10 frames
          - Weight: **dynamic (Bobo)**
          - Use 1 Gaussian like Kernel
-         - **Use DTW to detect Overfitting**
+         - Overfitting detection: **Local-Field DTW**
+         - DTW mode: **raw probability wave**
 Validation result 
     <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-06_dtw+50E/best.png" alt="cnn_v2_best">
@@ -419,8 +420,8 @@ Try ResnetV2 & DTW evaluate method & Peak detect
          - Output size: 10 frames
          - Weight: **dynamic (Bobo)**
          - Use 1 Gaussian like Kernel
-         - **Use Peak detect before DTW**
-         - **Use DTW to detect Overfitting**
+         - Overfitting detection: **Local-Field DTW**
+         - DTW mode: **peak**
 Validation result 
     <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_peak+dtw+50E/best_atepoch7.png" alt="cnn_v2_best+peak">
@@ -428,6 +429,35 @@ Validation result
 Validation result + Peak detect
     <p align="center" width="100">
         <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-08_peak+dtw+50E/best_peak.png" alt="cnn_v2_peak">
+    </p>
+</details>
+
+DTW evaluate + Peak detect method **local to global**
+<details>
+    <summary>ResnetV2 2019-07-09_newvalidmethod (beautiful)</summary>
+    Argument 2019-07-09
+    Best at epoch 8
+
+         - Epochs: 20
+         - Batch size: 15
+         - Learning rate: 0.0001 (decay half at every 20%)
+         - Res_block : V2 [1,1] [3,3] [1,1]
+         - Num of Res_blocks in 1 layer: 5
+         - Structure: conv + 5*Res_blocks + DownSampleBy2 + 5*Res_blocks + avg_pool + FC
+         - Input size: 20 frames
+         - Output size: 10 frames
+         - Weight: dynamic (Bobo)
+         - Use 1 Gaussian like Kernel
+         - Overfitting detection: **Global-Field DTW**
+         - DTW mode: **peak**
+         - Normalize: **Remove scaling, Keep shifting** 
+Validation result 
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-09_newvalidmethod/beautiful.png" alt="beautiful">
+    </p>
+Validation result + Peak detect
+    <p align="center" width="100">
+        <img src="https://github.com/Jhuangsp/SegmentModel/blob/master/info/2019-07-09_newvalidmethod/beautiful_peak.png" alt="beautiful_peak">
     </p>
 </details>
 
