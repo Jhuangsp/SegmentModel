@@ -78,12 +78,8 @@ def cnn_graph(args, num_total_steps):
             penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
             cost = tf.reduce_sum(penalty * tf.square(tf.subtract(training_logits, targets)))
 
-            # cost = tf.reduce_sum(tf.square(tf.subtract(training_logits, targets)))
-
             # Optimizer
             global_step = tf.Variable(0, trainable=False)
-            # boundaries = [np.int32((3/5) * num_total_steps), np.int32((4/5) * num_total_steps)]
-            # values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4]
             boundaries = [(num_total_steps*1)//5, (num_total_steps*2)//5, (num_total_steps*3)//5, (num_total_steps*4)//5]
             values = [args.learning_rate, args.learning_rate/2, args.learning_rate/4, args.learning_rate/8, args.learning_rate/16]
 

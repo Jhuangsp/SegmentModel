@@ -5,11 +5,12 @@ import os,sys
 import argparse
 import datetime
 from matplotlib import pyplot as plt
+import importlib
 # from hyperopt import fmin, tpe, hp, Trials, partial
 
 import DataProcess
-import cnn_trainer
-import rnn_trainer
+# import cnn_trainer
+# import rnn_trainer
 
 parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN model.', fromfile_prefix_chars='@')
 
@@ -56,6 +57,22 @@ parser.add_argument('-ob', '--out_band', type=int, default=10,
                     help='Number of output-band frames in the mid of input sequence (default:10)')
 args = parser.parse_args()
 
+if args.model == "cnn":
+    pass
+elif args.model == "rnn":
+
+    # check argument
+    if args.in_frames <= args.out_band:
+        parser.error('-if must larger than -ob.')
+    elif (args.in_frames-args.out_band)%2 != 0:
+        parser.error('The value -if larger than -ob must divisible by 2.')
+else:
+    parser.error('Unkown model. Choose model from \"cnn\" or \"rnn\"')
+
+# Dynamic import pkg
+cnn_trainer = importlib.import_module('cnn_trainer')
+rnn_trainer = importlib.import_module('rnn_trainer')
+
 if args.info != None:
     # save args
     with open('./model/command_args.txt', 'w') as f:
@@ -87,17 +104,6 @@ def test(args, DataLoader):
 def main():
     # Input size of each steps
     input_size = args.num_joint*args.coord_dim
-    if args.model == "cnn":
-        pass
-    elif args.model == "rnn":
-
-        # check argument
-        if args.in_frames <= args.out_band:
-            parser.error('-if must larger than -ob.')
-        elif (args.in_frames-args.out_band)%2 != 0:
-            parser.error('The value -if larger than -ob must divisible by 2.')
-    else:
-        parser.error('Unkown model. Choose model from \"cnn\" or \"rnn\"')
 
     # Loading data
     DataLoader = DataProcess.DataProcess(path=args.data_path, 

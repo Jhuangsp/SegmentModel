@@ -17,7 +17,6 @@ class ResNet(object):
         with tf.variable_scope(name):
             self.X = tf.placeholder(tf.float32, [None, in_shape[0], in_shape[1], in_shape[2]], name='X') # [batch, height, width, channel]
             self.y = tf.placeholder(tf.float32, [None, out_shape[0]], name='y') # [batch, width(frames)]
-            # self.training = tf.placeholder(tf.bool, name='training')
 
             x = preproc(self.X)
             self.logits = self.build_net(x_img=x, layer_n=layer_n)
@@ -89,7 +88,6 @@ class ResNet(object):
 
     def build_net(self, x_img, layer_n):
         x = x_img
-        # o_frames = x_img.shape[1] // 2
         ori_shape = x_img.shape[1:-1]
 
         residual_block = self.residual_block if False else self.residual_block_v2
