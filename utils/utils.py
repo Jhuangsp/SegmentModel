@@ -29,8 +29,8 @@ def normalize(step_input):
     normalized = normalized - normalized[1,:]
     unit = np.linalg.norm(normalized[0])
     # normalized = normalized/unit
-    return normalized
-    # return normalized.reshape(-1)
+    # return normalized # cnn
+    return normalized.reshape(-1) # rnn 
 
 
 def discrete_gaussian_kernel(t, n):

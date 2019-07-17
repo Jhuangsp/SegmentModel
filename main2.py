@@ -75,7 +75,6 @@ if args.info != None:
 if args.model == "cnn":
     Solver = importlib.import_module('cnn.Solver').Solver
     Model = importlib.import_module('cnn.Resnet').Resnet
-    pass
 elif args.model == "rnn":
 
     # check argument
@@ -83,7 +82,8 @@ elif args.model == "rnn":
         parser.error('-if must larger than -ob.')
     elif (args.in_frames-args.out_band)%2 != 0:
         parser.error('The value -if larger than -ob must divisible by 2.')
-    Solver = importlib.import_module('rnn_trainer')
+    Solver = importlib.import_module('rnn.Solver').Solver
+    Model = importlib.import_module('rnn.SegmentModel').Seq2Seq
 else:
     parser.error('Unkown model. Choose model from \"cnn\" or \"rnn\"')
 
@@ -113,7 +113,11 @@ def main():
                          num_steps=args.epochs*DataLoader.Get_num_batch(DataLoader.train_set['source'], args.in_frames),
                          lr=args.learning_rate)
         elif args.model == "rnn":
-            net = Model()
+            # Build Sequence to Sequence Model 
+            net = Model( seq_length=args.in_frames, out_length=args.out_band, rnn_size=args.rnn_size, num_layers=args.num_layers, batch_size=args.batch_size, 
+                         input_size=input_size, decoder_steps=args.decoder_steps,
+                         num_steps=args.epochs*DataLoader.Get_num_batch(DataLoader.train_set['source'], args.in_frames),
+                         lr=args.learning_rate)
         solver.train(args=args, DataLoader=DataLoader, net=net)
         solver.test(args=args, DataLoader=DataLoader)
 

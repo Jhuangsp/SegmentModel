@@ -56,8 +56,8 @@ class DataProcess(object):
         source_data = {}
         print('Source data shape (samples, max_data_steps, input_size):') 
         for activity_name, frames_list in self.source_path.items():
-            # frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32)
-            frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32)
+            frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32) # rnn
+            # frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32) # cnn
             for i,frame in enumerate(frames_list):
                 with open(frame) as json_file:
                     data = json.load(json_file)
@@ -76,8 +76,8 @@ class DataProcess(object):
             ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
-                lf[s] = utils.gaussian_like_weighted(loaded)
-                # lf[s] = utils.gaussian_weighted(loaded, ns[s])
+                # lf[s] = utils.gaussian_like_weighted(loaded) # cnn
+                lf[s] = utils.gaussian_weighted(loaded, ns[s]) # rnn
                 # lf[s] = loaded
             target_data[activity_name] = np.copy(lf)
             print('  sample {}: {}'.format(activity_name, target_data[activity_name].shape))
@@ -165,6 +165,7 @@ class DataProcess(object):
             # targets_batch = [random_targets[i][:,st+OutOfBand_size:st+input_seq_length-OutOfBand_size] for (i,st) in enumerate(start_i)]
             # sources_batch = [random_sources[i][st:st+input_seq_length] for (i,st) in enumerate(start_i)]
             
+            # print(np.array(sources_batch).shape, np.array(targets_batch).shape)
             yield np.array(sources_batch), np.array(targets_batch), num_batch
 
     def Batch_Generator_Resnet(self, source_split, target_split, input_seq_length, out_band_length, training=True):

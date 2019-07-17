@@ -63,7 +63,6 @@ def rnn_graph(args, num_total_steps):
         (input_data, targets, keep_rate) = SegmentModel.get_inputs()
         
         # Build Sequence to Sequence Model 
-        print('==> Creating Model...\n')
         Net = SegmentModel.Seq2Seq( input_data=input_data, targets=targets, keep_rate=keep_rate,
                                     seq_length=args.in_frames, out_length=args.out_band, rnn_size=args.rnn_size, num_layers=args.num_layers, batch_size=args.batch_size, 
                                     input_size=input_size, decoder_steps=args.decoder_steps)

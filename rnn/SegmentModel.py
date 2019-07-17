@@ -5,20 +5,6 @@ import os
 
 import DataProcess
 
-
-def get_inputs():
-    '''
-    Define all input tf.placeholder tensor
-    '''
-    # Data
-    inputs  = tf.placeholder(tf.float32, [None, None, None], name='inputs')  # (batch_size, steps, input_size)
-    targets = tf.placeholder(tf.float32, [None, None, None], name='targets') # (batch_size, steps, output_size)
-    
-    # Learning rate
-    keep_rate = tf.placeholder(tf.float32, name='keep_rate')
-    
-    return inputs, targets, keep_rate
-
 class Seq2Seq(object):
     '''
     Sequence to Sequence Model
@@ -36,55 +22,63 @@ class Seq2Seq(object):
         - input_size:           Input size of each steps
         - decoder_steps:    Number of steps should decoder do.
     '''
-    def __init__(self, input_data, targets, keep_rate,
-                  seq_length, out_length, rnn_size, num_layers, batch_size, 
-                  input_size, decoder_steps):
-        super(Seq2Seq, self).__init__()
+    def __init__(self, seq_length, out_length, rnn_size, num_layers, batch_size, 
+                  input_size, decoder_steps,
+                  num_steps, lr):
+        self.train_graph = tf.Graph()
+        with self.train_graph.as_default():
+            super(Seq2Seq, self).__init__()
 
-        self.input_data = input_data
-        self.targets = targets
-        self.keep_rate = keep_rate
+            print('==> Creating Model...\n')
 
-        self.seq_length = seq_length
-        self.out_length = out_length
-        self.rnn_size = rnn_size
-        self.num_layers = num_layers
-        # self.batch_size = batch_size
-        batch_size_tmp = tf.shape(self.input_data)[0]
-        self.batch_size = batch_size_tmp
+            # Data
+            self.input_data  = tf.placeholder(tf.float32, [None, None, None], name='inputs')  # (batch_size, steps, input_size)
+            self.targets = tf.placeholder(tf.float32, [None, None, None], name='targets') # (batch_size, steps, output_size)
+            
+            # Learning rate
+            self.keep_rate = tf.placeholder(tf.float32, name='keep_rate')
 
-        self.input_size = input_size
-        self.decoder_steps = decoder_steps
+            self.seq_length = seq_length
+            self.out_length = out_length
+            self.rnn_size = rnn_size
+            self.num_layers = num_layers
+            # self.batch_size = batch_size
+            batch_size_tmp = tf.shape(self.input_data)[0]
+            self.batch_size = batch_size_tmp
 
-        def process_decoder_input(data, batch_size):
-            '''
-                Add START_TOKEN at the front and remove the LAST_TOKEN. (used for training)
-                    e.g. Ground Truth=[4,5,6], then Input=[start_tokens,4,5]
-                Parameter:
-                    - data: shape=(batch_size, sequence_len)
-                Return:
-                    - decoder_input: target start with START_TOKEN without LAST_TOKEN
-            '''
-            # START_TOKEN = np.full((batch_size, 1, output_len), 0.5)
-            data_without_end = tf.strided_slice(data, begin=[0, 0], end=[batch_size, -1], strides=[1, 1]) #TODO?
-            decoder_input = tf.concat([tf.fill([batch_size, 1, self.out_length], 0.5), data_without_end], axis=1) #TODO?
-            return decoder_input
+            self.input_size = input_size
+            self.decoder_steps = decoder_steps
+
+            def process_decoder_input(data, batch_size):
+                '''
+                    Add START_TOKEN at the front and remove the LAST_TOKEN. (used for training)
+                        e.g. Ground Truth=[4,5,6], then Input=[start_tokens,4,5]
+                    Parameter:
+                        - data: shape=(batch_size, sequence_len)
+                    Return:
+                        - decoder_input: target start with START_TOKEN without LAST_TOKEN
+                '''
+                # START_TOKEN = np.full((batch_size, 1, output_len), 0.5)
+                data_without_end = tf.strided_slice(data, begin=[0, 0], end=[batch_size, -1], strides=[1, 1]) #TODO?
+                decoder_input = tf.concat([tf.fill([batch_size, 1, self.out_length], 0.5), data_without_end], axis=1) #TODO?
+                return decoder_input
 
 
-        self.encoder = self.Encoder(self.input_data, self.keep_rate,
-                                    self.seq_length, self.rnn_size, self.num_layers, self.batch_size,
-                                    self.input_size)
+            self.encoder = self.Encoder(self.input_data, self.keep_rate,
+                                        self.seq_length, self.rnn_size, self.num_layers, self.batch_size,
+                                        self.input_size)
 
-        # Preprocess the target data
-        # batch_size_tmp = tf.shape(self.targets)[0]
-        # self.decoder_input = process_decoder_input(self.targets, batch_size_tmp)
-        self.decoder_input = process_decoder_input(self.targets, self.batch_size)
+            # Preprocess the target data
+            # batch_size_tmp = tf.shape(self.targets)[0]
+            # self.decoder_input = process_decoder_input(self.targets, batch_size_tmp)
+            self.decoder_input = process_decoder_input(self.targets, self.batch_size)
 
-        self.decoder = self.Decoder(self.encoder.encoder_state,
-                                    self.decoder_input,
-                                    self.keep_rate,
-                                    self.out_length, self.rnn_size, self.num_layers, self.batch_size,
-                                    self.decoder_steps)
+            self.decoder = self.Decoder(self.encoder.encoder_state,
+                                        self.decoder_input,
+                                        self.keep_rate,
+                                        self.out_length, self.rnn_size, self.num_layers, self.batch_size,
+                                        self.decoder_steps)
+            self.define_opt(num_steps, lr)
 
 
     class Encoder(object):
@@ -286,3 +280,34 @@ class Seq2Seq(object):
 
             return training_decoder_output, predicting_decoder_output
 
+    def define_opt(self, num_steps, lr):
+        # Get Model Result
+        training_decoder_output   = self.decoder.training_decoder_output
+        predicting_decoder_output = self.decoder.predicting_decoder_output
+        
+        self.training_logits   = tf.identity(training_decoder_output,  name='train_result')   # rnn_output
+        self.predicting_logits = tf.identity(predicting_decoder_output, name='inference_result')   # sample_id
+
+        with tf.name_scope("optimization"):
+            # Loss function
+            valuefull = tf.cast(tf.not_equal(self.targets, 0), dtype=tf.float32)
+            valueless = tf.cast(tf.equal(self.targets, 0), dtype=tf.float32)
+            num_valuefull = tf.reduce_sum(valuefull)
+            num_valueless = tf.reduce_sum(valueless)
+            total = num_valuefull + num_valueless
+            penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
+            self.cost = tf.reduce_sum(penalty * tf.square(tf.subtract(self.training_logits, self.targets)))
+
+            # Optimizer
+            global_step = tf.Variable(0, trainable=False)
+            boundaries = [(num_steps*1)//5, (num_steps*2)//5, (num_steps*3)//5, (num_steps*4)//5]
+            values = [lr, lr/2, lr/4, lr/8, lr/16]
+
+            learning_rate = tf.train.piecewise_constant(global_step, boundaries, values)
+            self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+            self.train_op = self.optimizer.minimize(self.cost, global_step=global_step, name="train_op")
+            
+        pred = tf.argmax(self.training_logits, axis=1, name="inference_result")
+        prob = tf.nn.softmax(self.training_logits, name="inference_prob")
+        accuracy = tf.reduce_mean(tf.cast(tf.equal(pred, tf.argmax(self.targets, axis=1)), tf.float32), name="accuracy")
+        
