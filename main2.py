@@ -57,22 +57,6 @@ parser.add_argument('-ob', '--out_band', type=int, default=10,
                     help='Number of output-band frames in the mid of input sequence (default:10)')
 args = parser.parse_args()
 
-if args.model == "cnn":
-    pass
-elif args.model == "rnn":
-
-    # check argument
-    if args.in_frames <= args.out_band:
-        parser.error('-if must larger than -ob.')
-    elif (args.in_frames-args.out_band)%2 != 0:
-        parser.error('The value -if larger than -ob must divisible by 2.')
-else:
-    parser.error('Unkown model. Choose model from \"cnn\" or \"rnn\"')
-
-# Dynamic import pkg
-cnn_trainer = importlib.import_module('cnn_trainer')
-rnn_trainer = importlib.import_module('rnn_trainer')
-
 if args.info != None:
     # save args
     with open('./model/command_args.txt', 'w') as f:
@@ -87,19 +71,22 @@ if args.info != None:
         out_file.write(args.info)
         out_file.write('Model: {}'.format(args.model))
 
-def train(args, DataLoader):
-    if args.model == "cnn":
-        cnn_trainer.train_cnn(args, DataLoader)
-    else:
-        rnn_trainer.train_rnn(args, DataLoader)
+# Dynamic import pkg
+if args.model == "cnn":
+    Solver = importlib.import_module('cnn.Solver').Solver
+    Model = importlib.import_module('cnn.Resnet').Resnet
     pass
+elif args.model == "rnn":
 
-def test(args, DataLoader):
-    if args.model == "cnn":
-        cnn_trainer.test_cnn(args, DataLoader)
-    else:
-        rnn_trainer.test_rnn(args, DataLoader)
-    pass
+    # check argument
+    if args.in_frames <= args.out_band:
+        parser.error('-if must larger than -ob.')
+    elif (args.in_frames-args.out_band)%2 != 0:
+        parser.error('The value -if larger than -ob must divisible by 2.')
+    Solver = importlib.import_module('rnn_trainer')
+else:
+    parser.error('Unkown model. Choose model from \"cnn\" or \"rnn\"')
+
 
 def main():
     # Input size of each steps
@@ -113,11 +100,22 @@ def main():
                                          # input_size=input_size, 
                                          decoder_steps=args.decoder_steps) # TODO
     # Build graph & Train/Test
+    solver = Solver()
     if args.test:
-        test(args=args, DataLoader=DataLoader)
+        solver.test(args=args, DataLoader=DataLoader)
     else:
-        train(args=args, DataLoader=DataLoader)
-        test(args=args, DataLoader=DataLoader)
+        # Biuld net
+        if args.model == "cnn":
+            net = Model(name="resnet",
+                         layer_n=5,
+                         in_shape=[args.in_frames, args.num_joint, args.coord_dim], 
+                         out_shape=[args.out_band], 
+                         num_steps=args.epochs*DataLoader.Get_num_batch(DataLoader.train_set['source'], args.in_frames),
+                         lr=args.learning_rate)
+        elif args.model == "rnn":
+            net = Model()
+        solver.train(args=args, DataLoader=DataLoader, net=net)
+        solver.test(args=args, DataLoader=DataLoader)
 
 if __name__ == '__main__':
     main()
