@@ -86,11 +86,11 @@ class Solver(object):
                                       sum(all_loss)/len(all_loss)))
                         if sum(all_loss)/len(all_loss) < best:
                             saver.save(sess, best_point)
-                            best = d
+                            best = sum(all_loss)/len(all_loss)
                             print('Best Model at epoch {}, Valid loss: {:>6.3f}'.format(epoch_i, best))
                         '''
                         
-                        # ''' Peak detect + DTW
+                        # ''' whole
                         infer_data = DataLoader.valid_set['source']
                         infer_targ = DataLoader.valid_set['target']
 
@@ -107,6 +107,7 @@ class Solver(object):
 
                         euclidean_norm = lambda x, y: np.abs(x - y)
                         a_logits = oblique_mean(answer_logits)
+                        a_logits = np.pad(a_logits, (5, 5), 'edge')
                         rtpeaks, _ = find_peaks(a_logits, height=0)
                         gtpeaks, _ = find_peaks(infer_targ.reshape(3,-1)[-1], height=0)
                         if rtpeaks.size == 0 or gtpeaks.size == 0:
@@ -168,4 +169,6 @@ class Solver(object):
             print('time: {:6.2f}(s)'.format(time.time() - start_time))
 
         a_logits = oblique_mean(answer_logits)
+        padsize = (args.in_frames - args.out_band) // 2
+        a_logits = np.pad(a_logits, (padsize, padsize), 'edge')
         draw(args=args, result=a_logits, gt=infer_targ.reshape(3,-1)[-1])

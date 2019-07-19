@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description='Skeleton-based action segment RNN 
 
 # Data parameter
 parser.add_argument('-d', '--data_path', type=str, default='data',
-                    help='Path to Dataset (default:\"../data\")')
+                    help='Path to Dataset (default:\"data\")')
 parser.add_argument('-jnum', '--num_joint', type=int, default=18,
                     help='Number of joints (default:18)')
 parser.add_argument('-jdim', '--coord_dim', type=int, default=2,
@@ -98,7 +98,8 @@ def main():
                                          num_joint=args.num_joint,
                                          coord_dim=args.coord_dim,
                                          # input_size=input_size, 
-                                         decoder_steps=args.decoder_steps) # TODO
+                                         decoder_steps=args.decoder_steps,
+                                         model=args.model) # TODO
     # Build graph & Train/Test
     solver = Solver()
     if args.test:

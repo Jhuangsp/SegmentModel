@@ -15,7 +15,7 @@ plt.rcParams.update({'font.size': 20})
 # plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 # plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-def normalize(step_input):
+def normalize(step_input, model):
     '''
     Normaliaze the joint coordinate which take Neck(idx:1) as origin, 
     distance from Neck(idx:1) to Nose(idx:0) as length unit.
@@ -29,8 +29,10 @@ def normalize(step_input):
     normalized = normalized - normalized[1,:]
     unit = np.linalg.norm(normalized[0])
     # normalized = normalized/unit
-    # return normalized # cnn
-    return normalized.reshape(-1) # rnn 
+    if model == 'cnn':
+        return normalized # cnn
+    else:
+        return normalized.reshape(-1) # rnn 
 
 
 def discrete_gaussian_kernel(t, n):
@@ -114,7 +116,7 @@ def draw(args, result, gt):
     result_name = "./model/result.npy"
     gt_name = "./model/gt.npy"
 
-    ls = np.arange(result.shape[0]) + (args.in_frames - args.out_band) // 2
+    ls = np.arange(result.shape[0])# + (args.in_frames - args.out_band) // 2
     plt.scatter(ls, result, color='orange')
     plt.plot(ls, result, color='orange')
     np.save(result_name, result)

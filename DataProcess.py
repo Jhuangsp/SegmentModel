@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class DataProcess(object):
     """docstring for DataProcess"""
-    def __init__(self, path, batch_size, num_joint, coord_dim, decoder_steps):
+    def __init__(self, path, batch_size, num_joint, coord_dim, decoder_steps, model):
         super(DataProcess, self).__init__()
 
         self.source_path = {} # {'activity_name':['frame1_path', 'frame2_path', ..., 'frameEND_path'], 'activity2_name':[...], ...}
@@ -36,6 +36,7 @@ class DataProcess(object):
         self.coord_dim = coord_dim
         self.input_size = self.num_joint * self.coord_dim
         self.decoder_steps = decoder_steps
+        self.model = model
 
         # Loading data
         self.source_data, self.target_data = self.Load_data()
@@ -56,12 +57,14 @@ class DataProcess(object):
         source_data = {}
         print('Source data shape (samples, max_data_steps, input_size):') 
         for activity_name, frames_list in self.source_path.items():
-            frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32) # rnn
-            # frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32) # cnn
+            if self.model == 'cnn':
+                frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32) # cnn
+            else:
+                frame_data = np.zeros((len(frames_list) ,self.input_size), dtype=np.float32) # rnn
             for i,frame in enumerate(frames_list):
                 with open(frame) as json_file:
                     data = json.load(json_file)
-                    frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints']))
+                    frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints']), self.model)
             source_data[activity_name] = np.copy(frame_data)
             print('  sample {}: {}'.format(activity_name, source_data[activity_name].shape))
 
@@ -76,9 +79,11 @@ class DataProcess(object):
             ns = [2, 2, 2] # less accurate -> more accurate
             assert len(ns)==self.decoder_steps, 'length of \'ns\' != \'decoder_steps\'.'
             for s in range(self.decoder_steps):
-                # lf[s] = utils.gaussian_like_weighted(loaded) # cnn
-                lf[s] = utils.gaussian_weighted(loaded, ns[s]) # rnn
-                # lf[s] = loaded
+                if self.model == 'cnn':
+                    lf[s] = utils.gaussian_like_weighted(loaded) # cnn
+                else:
+                    lf[s] = utils.gaussian_like_weighted(loaded) # cnn
+                    # lf[s] = utils.gaussian_weighted(loaded, ns[s]) # rnn
             target_data[activity_name] = np.copy(lf)
             print('  sample {}: {}'.format(activity_name, target_data[activity_name].shape))
         print('\n')
@@ -100,6 +105,10 @@ class DataProcess(object):
         train_target = dict(list(self.target_data.items())[:6] + list(self.target_data.items())[7:])
         valid_source = dict(list(self.source_data.items())[6:7])
         valid_target = dict(list(self.target_data.items())[6:7])
+        # train_source = dict(list(self.source_data.items())[:12] + list(self.source_data.items())[13:])
+        # train_target = dict(list(self.target_data.items())[:12] + list(self.target_data.items())[13:])
+        # valid_source = dict(list(self.source_data.items())[12:13])
+        # valid_target = dict(list(self.target_data.items())[12:13])
 
         print('Training source:')
         for k,i in train_source.items():

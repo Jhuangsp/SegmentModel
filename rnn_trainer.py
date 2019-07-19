@@ -29,8 +29,8 @@ def test_rnn(args, DataLoader):
     length = infer_data.shape[0] - (args.in_frames-1)
     print('infer_data shape:', infer_data.shape)
 
-    # checkpoint = "./model/best_model.ckpt"
-    checkpoint = "./model/trained_model.ckpt"
+    checkpoint = "./model/best_model.ckpt"
+    # checkpoint = "./model/trained_model.ckpt"
 
     loaded_graph = tf.Graph()
     answer_logits = np.zeros((length, args.out_band))   

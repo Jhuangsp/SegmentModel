@@ -295,7 +295,7 @@ class Seq2Seq(object):
             num_valuefull = tf.reduce_sum(valuefull)
             num_valueless = tf.reduce_sum(valueless)
             total = num_valuefull + num_valueless
-            penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
+            penalty = valuefull * num_valueless/total + valueless * num_valuefull/total + 0.1
             self.cost = tf.reduce_sum(penalty * tf.square(tf.subtract(self.training_logits, self.targets)))
 
             # Optimizer
