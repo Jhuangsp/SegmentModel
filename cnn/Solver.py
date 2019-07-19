@@ -85,8 +85,9 @@ class Solver(object):
                                       sum(all_loss)/len(all_loss)))
                         if sum(all_loss)/len(all_loss) < best:
                             saver.save(sess, best_point)
-                            best = d
-                            print('Best Model at epoch {}, Valid loss: {:>6.3f}'.format(epoch_i, best))
+                            best = sum(all_loss)/len(all_loss)
+                            best_e = epoch_i
+                            print('Best Model at epoch {}, Valid loss: {:>6.3f}'.format(best_e, best))
                         '''
                         
                         # ''' Peak detect + DTW
@@ -107,6 +108,7 @@ class Solver(object):
                         euclidean_norm = lambda x, y: np.abs(x - y)
                         a_logits = oblique_mean(answer_logits)
                         a_logits = np.pad(a_logits, (5, 5), 'edge')
+                        # peak
                         rtpeaks, _ = find_peaks(a_logits, height=0)
                         gtpeaks, _ = find_peaks(infer_targ.reshape(3,-1)[-1], height=0)
                         if rtpeaks.size == 0 or gtpeaks.size == 0:
@@ -126,9 +128,10 @@ class Solver(object):
                         if d < best:
                             saver.save(sess, best_point)
                             best = d
-                            print('Best Model at epoch {}, dtw {:>6.3f}'.format(epoch_i, best))
+                            best_e = epoch_i
+                            print('Best Model at epoch {}, dtw {:>6.3f}'.format(best_e, best))
                         # '''
-
+            print('Best Model at epoch {}, Valid loss: {:>6.3f}'.format(best_e, best))
             # Save model
             saver.save(sess, checkpoint)
             print('Model Trained and Saved\n')

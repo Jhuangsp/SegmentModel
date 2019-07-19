@@ -1,6 +1,8 @@
 __pycache__/*
 data/*
 test/*
+cnn/__pycache__/*
+rnn/__pycache__/*
 imagemaker.pptx
 model/*
 utils/__pycache__/*

@@ -108,12 +108,32 @@ class Solver(object):
                         euclidean_norm = lambda x, y: np.abs(x - y)
                         a_logits = oblique_mean(answer_logits)
                         a_logits = np.pad(a_logits, (5, 5), 'edge')
-                        rtpeaks, _ = find_peaks(a_logits, height=0)
-                        gtpeaks, _ = find_peaks(infer_targ.reshape(3,-1)[-1], height=0)
-                        if rtpeaks.size == 0 or gtpeaks.size == 0:
-                            rtpeaks = np.insert(rtpeaks, 0, 0)
-                            gtpeaks = np.insert(gtpeaks, 0, 0)
-                        d, cost_matrix, acc_cost_matrix, path = dtw(gtpeaks, rtpeaks, dist=euclidean_norm)
+
+                        # # peak
+                        # rtpeaks, _ = find_peaks(a_logits, height=0)
+                        # gtpeaks, _ = find_peaks(infer_targ.reshape(3,-1)[-1], height=0)
+                        # if rtpeaks.size == 0 or gtpeaks.size == 0:
+                        #     rtpeaks = np.insert(rtpeaks, 0, 0)
+                        #     gtpeaks = np.insert(gtpeaks, 0, 0)
+                        # d, cost_matrix, acc_cost_matrix, path = dtw(gtpeaks, rtpeaks, dist=euclidean_norm)
+                        
+                        # print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Train Loss: {:>6.3f} | Valid DTW: {:>6.3f}'
+                        #       .format(epoch_i,
+                        #               args.epochs, 
+                        #               batch_i, 
+                        #               num_batch,
+                        #               LR, 
+                        #               loss,
+                        #               d))
+                        
+                        # if d < best:
+                        #     saver.save(sess, best_point)
+                        #     best = d
+                        #     print('Best Model at epoch {}, dtw {:>6.3f}'.format(epoch_i, best))
+
+                        # DTW
+                        # d, cost_matrix, acc_cost_matrix, path = dtw(a_logits, infer_targ.reshape(3,-1)[-1], dist=euclidean_norm)
+                        d = (np.abs(a_logits - infer_targ.reshape(3,-1)[-1])).sum()
                         
                         print(' - Epoch {:>3}/{} | Batch {:>4}/{} | LR: {:>4.3e} | Train Loss: {:>6.3f} | Valid DTW: {:>6.3f}'
                               .format(epoch_i,
@@ -147,8 +167,8 @@ class Solver(object):
         length = infer_data.shape[0] - (args.in_frames-1)
         print('infer_data shape:', infer_data.shape)
 
-        checkpoint = "./model/best_model.ckpt"
-        # checkpoint = "./model/trained_model.ckpt"
+        # checkpoint = "./model/best_model.ckpt"
+        checkpoint = "./model/trained_model.ckpt"
 
         loaded_graph = tf.Graph()
         answer_logits = np.zeros((length, args.out_band))   

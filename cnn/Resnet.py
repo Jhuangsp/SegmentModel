@@ -107,12 +107,12 @@ class Resnet(object):
         with tf.variable_scope("conv1"):
             for i in range(layer_n):
                 x = residual_block(x, o_channel=256, name="resblock{}".format(i+1))
-                assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1])).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
+                # assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1])).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
 
         with tf.variable_scope("conv2"):
             for i in range(layer_n):
                 x = residual_block(x, o_channel=512, downsampling=(i==0), name="resblock{}".format(i+1))
-                assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1]) // 2).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
+                # assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1]) // 2).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
 
         with tf.variable_scope("fc"):
             x = tf.reduce_mean(x, axis=[1,2]) # global average pooling
