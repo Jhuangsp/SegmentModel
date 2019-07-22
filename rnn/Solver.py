@@ -107,7 +107,8 @@ class Solver(object):
 
                         euclidean_norm = lambda x, y: np.abs(x - y)
                         a_logits = oblique_mean(answer_logits)
-                        a_logits = np.pad(a_logits, (5, 5), 'edge')
+                        padsize = (args.in_frames - args.out_band) // 2
+                        a_logits = np.pad(a_logits, (padsize, padsize), 'edge')
 
                         # # peak
                         # rtpeaks, _ = find_peaks(a_logits, height=0)

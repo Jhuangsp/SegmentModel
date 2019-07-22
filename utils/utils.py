@@ -2,8 +2,10 @@
 import math
 import numpy as np
 import scipy
+from functools import reduce
 from matplotlib import pyplot as plt
 from scipy import special
+from scipy.signal import find_peaks
 
 plt.rcParams.update({'font.size': 20})
 
@@ -110,7 +112,29 @@ def oblique_mean(data):
         divider[i:i+cols] += tmp
     return (ans/divider)
 
+def group_consecutives(vals, step=1):
+    """Return list of consecutive lists of numbers from vals (number list)."""
+    run = []
+    result = [run]
+    expect = None
+    for v in vals:
+        if (v == expect) or (expect is None):
+            run.append(v)
+        else:
+            run = [v]
+            result.append(run)
+        expect = v + step
+    return result
 
+def post_process(data, it=5):
+    # expand
+    for i in range(it):
+        data = reduce(np.union1d, (data, data-1, data+1))
+    data = data[data>=0]
+
+    groups = group_consecutives(data)
+
+    return np.array([ g[len(g)//2] for g in groups ])
 
 def draw(args, result, gt):
     result_name = "./model/result.npy"
@@ -125,6 +149,14 @@ def draw(args, result, gt):
     plt.scatter(ls, gt)
     plt.plot(ls, gt)
     np.save(gt_name, gt)
+
+    peaks, _ = find_peaks(result, height=0.05)
+    peaks = post_process(peaks, it=4)
+    np.save('./model/peaks.npy', peaks)
+    for p in peaks:
+        plt.plot((p,p), (0,1), "--", color="red")
+
+    plt.plot(np.zeros_like(result), "--", color="gray")
 
     plt.xlabel('Frame')
     plt.ylabel('Probability of Changing Point Frame')
