@@ -52,7 +52,6 @@ class DataProcess(object):
          - target_data: [samples, decoder_steps, self.max_len]
         '''
 
-        # Dick type
         print('==> Loading data...\n')
         source_data = {}
         print('Source data shape (samples, max_data_steps, input_size):') 
@@ -94,6 +93,11 @@ class DataProcess(object):
         '''
         Split data into Training/Validation data
         '''
+        import operator
+        list_of_source_data = list(self.source_data.items())
+        list_of_target_data = list(self.target_data.items())
+        list_of_source_data.sort(key = operator.itemgetter(0))
+        list_of_target_data.sort(key = operator.itemgetter(0))
 
         print('==> Spliting Dataset...\n')
         # 1 video for validation
@@ -101,10 +105,10 @@ class DataProcess(object):
         # train_target = dict(list(self.target_data.items())[1:])
         # valid_source = dict(list(self.source_data.items())[:1])
         # valid_target = dict(list(self.target_data.items())[:1])
-        train_source = dict(list(self.source_data.items())[:6] + list(self.source_data.items())[7:])
-        train_target = dict(list(self.target_data.items())[:6] + list(self.target_data.items())[7:])
-        valid_source = dict(list(self.source_data.items())[6:7])
-        valid_target = dict(list(self.target_data.items())[6:7])
+        train_source = dict(list_of_source_data[:6] + list_of_source_data[7:])
+        train_target = dict(list_of_target_data[:6] + list_of_target_data[7:])
+        valid_source = dict(list_of_source_data[6:7])
+        valid_target = dict(list_of_target_data[6:7])
         # train_source = dict(list(self.source_data.items())[:12] + list(self.source_data.items())[13:])
         # train_target = dict(list(self.target_data.items())[:12] + list(self.target_data.items())[13:])
         # valid_source = dict(list(self.source_data.items())[12:13])
@@ -218,3 +222,42 @@ class DataProcess(object):
             # print(np.array(sources_batch).shape, np.array(targets_batch)[:,2,:].shape)
             yield np.array(sources_batch), np.array(targets_batch)[:,2,:], num_batch
 
+class DataProcessDemo(object):
+    """docstring for DataProcessDemo"""
+    def __init__(self, path, num_joint=18, coord_dim=2):
+        super(DataProcessDemo, self).__init__()
+
+        self.source_path = {} # {'activity_name':['frame1_path', 'frame2_path', ..., 'frameEND_path'], 'activity2_name':[...], ...}
+        print('Skeleton file:')
+        activity_name = 'DEMO'
+        self.source_path[activity_name] = glob.glob(os.path.join(path, '*.json')) 
+        print('Activity {:<25s} has {:>4d} frames.'.format(activity_name, len(self.source_path[activity_name])))
+
+        self.num_joint = num_joint
+        self.coord_dim = coord_dim
+
+        # Loading data
+        self.source_data = self.Load_data()
+
+    def Load_data(self):
+        '''
+        Loading data
+
+        return: 
+         - source_data: [samples, self.max_len(steps), input_size]
+        '''
+
+        print('==> Loading data...\n')
+        source_data = {}
+        print('Source data shape (samples, max_data_steps, input_size):') 
+        for activity_name, frames_list in self.source_path.items():
+            frame_data = np.zeros((len(frames_list), self.num_joint, self.coord_dim), dtype=np.float32)
+            for i,frame in enumerate(frames_list):
+                with open(frame) as json_file:
+                    data = json.load(json_file)
+                    frame_data[i] = utils.normalize(np.array(data['people'][0]['pose_keypoints']), 'cnn')
+            source_data[activity_name] = np.copy(frame_data)
+            print('  sample {}: {}'.format(activity_name, source_data[activity_name].shape))
+
+        return source_data
+        

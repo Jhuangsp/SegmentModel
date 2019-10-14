@@ -7,3 +7,6 @@ imagemaker.pptx
 model/*
 utils/__pycache__/*
 utils/peakdetect/__pycache__/*
+data.zip
+log/*
+tiny_test_standsit_20190718/*

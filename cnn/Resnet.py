@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 class Resnet(object):
-    def __init__(self, name='resnet', layer_n=3, in_shape=[20, 18, 2], out_shape=[10], num_steps=100, lr=1e-4):
+    def __init__(self, name='resnet', layer_n=5, in_shape=[20, 18, 2], out_shape=[10], num_steps=100, lr=1e-4):
 
         self.train_graph = tf.Graph()
         with self.train_graph.as_default():
@@ -22,9 +22,10 @@ class Resnet(object):
 
             with tf.variable_scope(name):
                 self.X = tf.placeholder(tf.float32, [None, in_shape[0], in_shape[1], in_shape[2]], name='X') # [batch, height, width, channel]
-                self.y = tf.placeholder(tf.float32, [None, out_shape[0]], name='y') # [batch, width(frames)]
+                self.y = tf.placeholder(tf.float32, [None, out_shape[0]], name='y') # [batch, width (frames)]
 
-                x = preproc(self.X)
+                with tf.variable_scope('preprocess'):
+                    x = preproc(self.X)
                 self.logits = self.build_net(x_img=x, layer_n=layer_n)
 
             self.define_opt(num_steps, lr)
@@ -107,12 +108,10 @@ class Resnet(object):
         with tf.variable_scope("conv1"):
             for i in range(layer_n):
                 x = residual_block(x, o_channel=256, name="resblock{}".format(i+1))
-                # assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1])).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
 
         with tf.variable_scope("conv2"):
             for i in range(layer_n):
                 x = residual_block(x, o_channel=512, downsampling=(i==0), name="resblock{}".format(i+1))
-                # assert (np.array(x.shape[1:-1]) == np.array(x_img.shape[1:-1]) // 2).all(), '{}, {}'.format(np.array(x.shape[1:-1]), np.array(x_img.shape[1:-1]))
 
         with tf.variable_scope("fc"):
             x = tf.reduce_mean(x, axis=[1,2]) # global average pooling
@@ -131,21 +130,25 @@ class Resnet(object):
 
         with tf.name_scope("optimization"):
             # Loss function
-            valuefull = tf.cast(tf.not_equal(self.y, 0), dtype=tf.float32)
-            valueless = tf.cast(tf.equal(self.y, 0), dtype=tf.float32)
-            num_valuefull = tf.reduce_sum(valuefull)
-            num_valueless = tf.reduce_sum(valueless)
-            total = num_valuefull + num_valueless
-            penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
-            self.cost = tf.reduce_sum(penalty * tf.square(tf.subtract(self.training_logits, self.y)))
+            with tf.name_scope("penalty_mask"):
+                with tf.name_scope("valuefull_mask"):
+                    valuefull = tf.cast(tf.not_equal(self.y, 0), dtype=tf.float32)
+                    num_valuefull = tf.reduce_sum(valuefull)
+                with tf.name_scope("valueless_mask"):
+                    valueless = tf.cast(tf.equal(self.y, 0), dtype=tf.float32)
+                    num_valueless = tf.reduce_sum(valueless)
+                total = num_valuefull + num_valueless
+                penalty = valuefull * num_valueless/total + valueless * num_valuefull/total
+            with tf.name_scope("weighted_cost"):
+                self.cost = tf.reduce_sum(penalty * tf.square(tf.subtract(self.training_logits, self.y)))
 
             # Optimizer
-            global_step = tf.Variable(0, trainable=False)
+            global_step = tf.Variable(0, trainable=False, name='global_step')
             boundaries = [(num_steps*1)//5, (num_steps*2)//5, (num_steps*3)//5, (num_steps*4)//5]
             values = [lr, lr/2, lr/4, lr/8, lr/16]
 
-            learning_rate = tf.train.piecewise_constant(global_step, boundaries, values)
-            self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+            learning_rate = tf.train.piecewise_constant(global_step, boundaries, values, name='learning_rate')
+            self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, name='optimizer')
             self.train_op = self.optimizer.minimize(self.cost, global_step=global_step, name="train_op")
             
         pred = tf.argmax(self.training_logits, axis=1, name="inference_result")
